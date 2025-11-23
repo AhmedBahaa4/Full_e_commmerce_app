@@ -133,6 +133,6 @@ Open for internships, junior roles, and collaborations.
 ## 📬 Contact
 - GitHub: https://github.com/AhmedBahaa4  
 - Email: *(ahmedbahha451@hmail.com)*  
-- LinkedIn: *([optional](https://www.linkedin.com/in/ahmed-bahaa-b91a1929b?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app))*  
+- LinkedIn: *(https://www.linkedin.com/in/ahmed-bahaa-b91a1929b?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app)*   
 
 
