@@ -1,0 +1,58 @@
+name: e_commerc_app
+description: "A new Flutter project."
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  badges: ^3.1.2
+  cached_network_image: ^3.4.1
+  carousel_slider: ^5.0.0
+  cloud_firestore: ^6.0.3
+  cupertino_icons: ^1.0.8
+  dio: ^5.9.0
+  firebase_auth: ^6.1.1
+  firebase_core: ^4.2.0
+  firebase_messaging: ^16.0.4
+  flutter:
+    sdk: flutter
+  flutter_bloc: ^9.1.1
+  flutter_carousel_widget: ^3.1.0
+  flutter_dash: ^1.0.0
+  flutter_facebook_auth: ^7.1.2
+  flutter_launcher_icons: ^0.14.4
+  flutter_local_notifications: ^19.5.0
+  flutter_native_splash: ^2.4.7
+  google_sign_in: ^6.2.1
+  persistent_bottom_nav_bar_v2: ^6.1.0
+  timezone: ^0.10.1
+
+dev_dependencies:
+  flutter_lints: ^5.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+
+flutter_native_splash:
+  color: "#000000" # خلفية رئيسية (black يناسب الصورة)
+  image: assets/images/new_splash.png
+  fullscreen: true
+  android_gravity: center
+  ios_content_mode: center
+
+  android_12:
+    color: "#000000"
+    image: assets/images/new_splash.png
+    icon_background_color: "#000000"
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/updated_logo_app.png"

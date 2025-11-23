@@ -1,0 +1,196 @@
+import 'package:e_commerc_app/utils/app_color.dart';
+import 'package:e_commerc_app/views/pages/favorite_page.dart';
+import 'package:e_commerc_app/views/pages/cart_page.dart';
+import 'package:e_commerc_app/views/pages/profile_page.dart';
+import 'package:e_commerc_app/views/widgets/custom_nav_bar_widget.dart';
+import 'package:flutter/material.dart';
+import 'package:e_commerc_app/views/pages/home_page.dart';
+import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
+
+class CustomBottomNavBar extends StatefulWidget {
+  const CustomBottomNavBar({super.key});
+
+  @override
+  State<CustomBottomNavBar> createState() => _CustomBottomNavBarState();
+}
+
+class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
+  int currentIndex = 0;
+  late PersistentTabController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = PersistentTabController();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+
+        backgroundColor: AppColors.white,
+        elevation: 0,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: CircleAvatar(
+                    backgroundImage: AssetImage('assets/images/my.jpg'),
+                    radius: 25,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Hi, Ahmed',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    Text(
+                      'Let\'s go shopping',
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+
+            // أيقونات البحث والإشعارات
+            Row(
+              children: [
+                if (currentIndex == 0) ...[
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(
+                      Icons.search,
+                      color: AppColors.black,
+                      size: 28,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {},
+                    icon: Stack(
+                      children: [
+                        const Icon(
+                          Icons.notifications_rounded,
+                          color: AppColors.black,
+                          size: 28,
+                        ),
+                        Positioned(
+                          right: 0,
+                          top: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(3),
+                            decoration: const BoxDecoration(
+                              color: AppColors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Text(
+                              '2', // عدد الإشعارات
+                              style: TextStyle(
+                                color: AppColors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ] else if (currentIndex == 1) ...[
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(
+                      Icons.shopping_bag,
+                      color: AppColors.black,
+                      size: 28,
+                    ),
+                  ),
+                ] else if (currentIndex == 2) ...[
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(
+                      Icons.favorite_border_outlined,
+                      color: AppColors.black,
+                      size: 28,
+                    ),
+                  ),
+                ] else if (currentIndex == 3) ...[
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(
+                      Icons.person,
+                      color: AppColors.black,
+                      size: 28,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ],
+        ),
+      ),
+
+      body: PersistentTabView(
+        controller: _controller,
+        tabs: [
+          PersistentTabConfig(
+            screen: const HomePage(),
+            item: ItemConfig(
+              icon: const Icon(Icons.home_outlined, size: 30),
+              title: 'Home',
+            ),
+          ),
+          PersistentTabConfig(
+            screen: const CartPage(),
+            item: ItemConfig(
+              icon: const Icon(Icons.shopping_cart_outlined, size: 30),
+              title: 'Cart',
+            ),
+          ),
+          PersistentTabConfig(
+            screen: const Favorites(),
+            item: ItemConfig(
+              icon: const Icon(Icons.favorite_border_outlined, size: 30),
+              title: 'Favorites',
+            ),
+          ),
+
+          PersistentTabConfig(
+            screen: const Profile(),
+            item: ItemConfig(
+              icon: const Icon(Icons.person, size: 30),
+              title: 'Profile',
+            ),
+          ),
+        ],
+
+        backgroundColor: AppColors.white,
+        gestureNavigationEnabled: true,
+        handleAndroidBackButtonPress: true,
+        resizeToAvoidBottomInset: true,
+        stateManagement: true,
+        onTabChanged: (index) {
+          setState(() {
+            currentIndex = index;
+          });
+        },
+        navBarBuilder: (NavBarConfig p1) {
+          return CustomNavBarWidget(p1, _controller);
+        },
+      ),
+    );
+  }
+}
