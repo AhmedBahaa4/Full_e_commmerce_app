@@ -13,108 +13,106 @@ class ProductItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final homeCubit = BlocProvider.of<HomeCubit>(context);
-    return Column(
-      children: [
-        Stack(
-          children: [
-            Stack(
-              children: [
-                DecoratedBox(
-                  decoration: BoxDecoration(color: AppColors.greyshade),
-                  child: CachedNetworkImage(
-                    imageUrl: productItem.imgUrl,
-                    height: 115,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) =>
-                        const Center(child: CircularProgressIndicator()),
-                    errorWidget: (context, url, error) =>
-                        const Icon(Icons.error, color: Colors.red, size: 40),
-                  ),
-                ),
-                Positioned(
-                  top: 3,
-                  right: 3,
-                  child: BlocBuilder<HomeCubit, HomeState>(
-                    bloc: homeCubit,
-                    buildWhen: (previous, current) =>
-                        (current is SetFavoriteLoading &&
-                            current.productId == productItem.id) ||
-                        (current is SetFavoriteSuccess &&
-                            current.productId == productItem.id) ||
-                        (current is SetFavoriteError &&
-                            current.productId == productItem.id),
-
-                    builder: (context, state) {
-                      if (state is SetFavoriteLoading) {
-                        return const CircularProgressIndicator();
-                      } else if (state is SetFavoriteError) {
-                        return const Icon(Icons.favorite_border , color: AppColors.black,);
-                      } else if (state is SetFavoriteSuccess) {
-                        return GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () async => homeCubit.setFevorite(productItem),
-                          child: Icon(
-                            state.isFavorite
-                                ? Icons.favorite
-                                : Icons.favorite_border,
-                            color: state.isFavorite
-                                ? AppColors.red
-                                : AppColors.grey,
-                            size: 40,
-                          ),
-                        );
-                      }
-
-                      return GestureDetector(
-                        behavior: HitTestBehavior
-                            .opaque, // ← مهم علشان يمنع اللمسة تروح للـ parent
-                        onTap: () async => homeCubit.setFevorite(productItem),
-                        child: Icon(
-                          productItem.isFavorite
-                              ? Icons.favorite
-                              : Icons.favorite_border,
-                          color: productItem.isFavorite
-                              ? AppColors.red
-                              : AppColors.grey,
-                          size: 40,
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
+    final size = MediaQuery.of(context).size;
+    return  Column(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    /// الصورة
+    Expanded(
+      child: Stack(
+        children: [
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: AppColors.greyshade,
+              borderRadius: BorderRadius.circular(12),
             ),
-          ],
-        ),
-
-        Text(
-          productItem.name,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-            color: AppColors.black,
+            child: CachedNetworkImage(
+              imageUrl: productItem.imgUrl,
+              fit: BoxFit.cover,
+              placeholder: (context, url) =>
+                  const Center(child: CircularProgressIndicator()),
+              errorWidget: (context, url, error) =>
+                  const Icon(Icons.error, color: Colors.red, size: 40),
+            ),
           ),
-        ),
 
-        Text(
-          productItem.category,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            fontWeight: FontWeight.w300,
-            fontSize: 15,
-            color: AppColors.grey,
-          ),
-        ),
+          /// Favorite Icon
+          Positioned(
+            top: 3,
+            right: 3,
+            child: BlocBuilder<HomeCubit, HomeState>(
+              bloc: homeCubit,
+              buildWhen: (previous, current) =>
+                  (current is SetFavoriteLoading &&
+                      current.productId == productItem.id) ||
+                  (current is SetFavoriteSuccess &&
+                      current.productId == productItem.id) ||
+                  (current is SetFavoriteError &&
+                      current.productId == productItem.id),
+              builder: (context, state) {
+                if (state is SetFavoriteLoading) {
+                  return const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  );
+                }
 
-        Text(
-          '\$${productItem.price}',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            fontWeight: FontWeight.bold,
-            fontSize: 15,
-            color: AppColors.black,
+                final isFav = state is SetFavoriteSuccess
+                    ? state.isFavorite
+                    : productItem.isFavorite;
+
+                return GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => homeCubit.setFevorite(productItem),
+                  child: Icon(
+                    isFav ? Icons.favorite : Icons.favorite_border,
+                    color: isFav ? AppColors.red : AppColors.grey,
+                    size: 22,
+                  ),
+                );
+              },
+            ),
           ),
-        ),
-      ],
-    );
+        ],
+      ),
+    ),
+
+    const SizedBox(height: 6),
+
+    /// اسم المنتج
+    Text(
+      productItem.name,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+        fontWeight: FontWeight.w600,
+        fontSize: 16,
+      ),
+    ),
+
+    /// الكاتيجوري
+    Text(
+      productItem.category,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+        fontSize: 14,
+        color: Colors.grey,
+      ),
+    ),
+
+    /// السعر
+    Text(
+      '\$${productItem.price}',
+      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+        fontWeight: FontWeight.bold,
+        fontSize: 15,
+      ),
+    ),
+  ],
+);
+
   }
 }

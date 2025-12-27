@@ -6,6 +6,7 @@ import 'package:e_commerc_app/views/pages/choose_location_page.dart';
 import 'package:e_commerc_app/views/pages/custom_bottom_nav_bar.dart';
 import 'package:e_commerc_app/views/pages/edit_profile_page.dart';
 import 'package:e_commerc_app/views/pages/login_page.dart';
+import 'package:e_commerc_app/views/pages/onboarding_page.dart';
 import 'package:e_commerc_app/views/pages/product_details_page.dart';
 import 'package:e_commerc_app/views/pages/register_page.dart';
 import 'package:e_commerc_app/views_models/cubit/auth_cubit/auth_cubit.dart';
@@ -43,6 +44,12 @@ class AppRouter {
       case AppRoutes.editProfileRoute:
         return MaterialPageRoute(
           builder: (_) => const EditProfilePage(),
+
+          settings: settings,
+        );
+          case AppRoutes.onboarding:
+        return MaterialPageRoute(
+          builder: (_) =>  OnboardingPage(),
 
           settings: settings,
         );

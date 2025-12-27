@@ -8,4 +8,5 @@ class AppRoutes {
   static const String register = '/register';
   static const String editProfileRoute = '/edit-profile';
   static const String changePasswordRoute = '/change-password';
+  static const String onboarding = '/onboarding';
 }

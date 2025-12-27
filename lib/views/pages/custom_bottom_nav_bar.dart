@@ -3,6 +3,7 @@ import 'package:e_commerc_app/views/pages/favorite_page.dart';
 import 'package:e_commerc_app/views/pages/cart_page.dart';
 import 'package:e_commerc_app/views/pages/profile_page.dart';
 import 'package:e_commerc_app/views/widgets/custom_nav_bar_widget.dart';
+import 'package:e_commerc_app/views/widgets/drawer_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:e_commerc_app/views/pages/home_page.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
@@ -15,6 +16,8 @@ class CustomBottomNavBar extends StatefulWidget {
 }
 
 class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   int currentIndex = 0;
   late PersistentTabController _controller;
 
@@ -27,8 +30,12 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+drawer: DrawerWidget(controller: _controller),
+
+      key: _scaffoldKey,
       appBar: AppBar(
         automaticallyImplyLeading: false,
+        
 
         backgroundColor: AppColors.white,
         elevation: 0,
@@ -37,32 +44,33 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
           children: [
             Row(
               children: [
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: CircleAvatar(
-                    backgroundImage: AssetImage('assets/images/my.jpg'),
-                    radius: 25,
+              
+                IconButton(
+                  onPressed: () {
+                    _scaffoldKey.currentState?.openDrawer();
+                  },
+                  icon: const Icon(
+                    Icons.menu,
+                    color: AppColors.black,
+                    size: 28,
                   ),
                 ),
-                const SizedBox(width: 10),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Hi, Ahmed',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                    Text(
-                      'Let\'s go shopping',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-                    ),
-                  ],
-                ),
+                const SizedBox(width: 8),
+                // Text(
+                //   currentIndex == 0
+                //       ? 'Home'
+                //       : currentIndex == 1
+                //           ? 'Cart'
+                //           : currentIndex == 2
+                //               ? 'Favorites'
+                //               : 'Profile',
+                //   style: const TextStyle(
+                //     color: AppColors.black,
+                //     fontSize: 22,
+                //     fontWeight: FontWeight.bold,
+                //   ),
+                // ),
+             
               ],
             ),
 
