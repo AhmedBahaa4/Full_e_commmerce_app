@@ -19,7 +19,6 @@ class AppColors {
   static const Color lightblue = Color.fromARGB(255, 173, 216, 230);
   static const Color deepBlue = Color(0xFF0486F1);
   static const Color orange = Colors.orange;
-  
+
   static const Color black2 = Color.fromARGB(136, 0, 0, 0);
- 
 }

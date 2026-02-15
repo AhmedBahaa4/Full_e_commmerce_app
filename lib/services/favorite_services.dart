@@ -19,8 +19,8 @@ class FavoriteServicesImpl implements FavoriteServices {
   }
 
   @override
-  Future<List<ProductItemModel>> getFavorites(String userId) async => await
-      firestoreServices.getCollection(
+  Future<List<ProductItemModel>> getFavorites(String userId) async =>
+      await firestoreServices.getCollection(
         path: ApiPaths.fevoritesProducts(userId),
         builder: (data, documentId) => ProductItemModel.fromMap(data),
       );

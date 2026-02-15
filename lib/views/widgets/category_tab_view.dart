@@ -77,7 +77,7 @@ class CategoryTabView extends StatelessWidget {
           style: Theme.of(context).textTheme.titleLarge!.copyWith(
             fontSize: 20,
             fontWeight: FontWeight.w800,
-            color: category.textcolor 
+            color: category.textcolor,
           ),
         ),
         const SizedBox(height: 4),

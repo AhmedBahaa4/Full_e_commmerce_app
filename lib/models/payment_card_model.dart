@@ -1,5 +1,3 @@
-
-
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 class PaymentCardModel {
   final String id;
@@ -57,9 +55,8 @@ class PaymentCardModel {
       ischoosen: map['ischoosen'] as bool,
     );
   }
-
-
 }
+
 // to simulate the backend
 List<PaymentCardModel> dummyPaymentCards = [
   PaymentCardModel(
@@ -104,6 +101,4 @@ List<PaymentCardModel> dummyPaymentCards = [
     expiryDate: '07/20',
     cvv: '678',
   ),
- 
 ];
-  

@@ -13,12 +13,13 @@ final class AuthError extends AuthState {
   AuthError({required this.message});
 }
 
-final class AuthDone extends AuthState {
-  
-}
- // login
-final class AuthloggingOut extends  AuthState {}
+final class AuthDone extends AuthState {}
+
+// login
+final class AuthloggingOut extends AuthState {}
+
 final class AuthLoggedOut extends AuthState {}
+
 final class AuthLoggedOutError extends AuthState {
   final String message;
   AuthLoggedOutError({required this.message});
@@ -26,7 +27,7 @@ final class AuthLoggedOutError extends AuthState {
 
 // google
 
-final class   GoogleAuthenticating extends AuthState {}
+final class GoogleAuthenticating extends AuthState {}
 
 final class GoogleAuthError extends AuthState {
   final String message;
@@ -35,17 +36,12 @@ final class GoogleAuthError extends AuthState {
 
 final class GoogleAuthDone extends AuthState {}
 
- 
-
- // facebook  
-final class  FacebookAuthenticating extends AuthState {}
+// facebook
+final class FacebookAuthenticating extends AuthState {}
 
 final class FacebookAuthError extends AuthState {
   final String message;
- FacebookAuthError({required this.message});
+  FacebookAuthError({required this.message});
 }
 
 final class FacebookAuthDone extends AuthState {}
-
-
-

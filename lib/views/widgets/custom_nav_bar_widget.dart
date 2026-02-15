@@ -11,20 +11,17 @@ class CustomNavBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration:  BoxDecoration(
-       
+      decoration: BoxDecoration(
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
         ),
         boxShadow: [
           BoxShadow(
-          
-             
             // ignore: deprecated_member_use
             color: AppColors.black.withOpacity(0.1),
             blurRadius: 10,
-            offset: const Offset(0, -2), 
+            offset: const Offset(0, -2),
           ),
         ],
       ),
@@ -39,7 +36,7 @@ class CustomNavBarWidget extends StatelessWidget {
           selectedItemColor: AppColors.primary,
           unselectedItemColor: AppColors.grey,
           selectedFontSize: 15,
-          unselectedFontSize:14,
+          unselectedFontSize: 14,
           currentIndex: controller.index,
           onTap: (index) => controller.jumpToTab(index),
           items: config.items.map((item) {

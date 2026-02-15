@@ -123,8 +123,10 @@ class ProductDetailsPage extends StatelessWidget {
                                     ],
                                   ),
                                   // هنا استخدمنا ال ProductCounterWidget الجديد
-                                  BlocBuilder<ProductDeailsCubit,
-                                      ProductDeailsState>(
+                                  BlocBuilder<
+                                    ProductDeailsCubit,
+                                    ProductDeailsState
+                                  >(
                                     bloc: cubit,
                                     buildWhen: (previous, current) =>
                                         current is QuantityCounterLoaded ||
@@ -152,8 +154,10 @@ class ProductDetailsPage extends StatelessWidget {
                                       color: AppColors.black,
                                     ),
                               ),
-                              BlocBuilder<ProductDeailsCubit,
-                                  ProductDeailsState>(
+                              BlocBuilder<
+                                ProductDeailsCubit,
+                                ProductDeailsState
+                              >(
                                 bloc: cubit,
                                 buildWhen: (previous, current) =>
                                     current is SizeSelected ||
@@ -168,21 +172,24 @@ class ProductDetailsPage extends StatelessWidget {
                                               right: 8.0,
                                             ),
                                             child: InkWell(
-                                              onTap: () => cubit.selectSize(size),
+                                              onTap: () =>
+                                                  cubit.selectSize(size),
                                               child: DecoratedBox(
                                                 decoration: BoxDecoration(
                                                   border: Border.all(
                                                     color: AppColors.white,
                                                   ),
-                                                  color: state is SizeSelected &&
+                                                  color:
+                                                      state is SizeSelected &&
                                                           state.size == size
                                                       ? AppColors.primary
                                                       : AppColors.grey3,
                                                   shape: BoxShape.circle,
                                                 ),
                                                 child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(8.0),
+                                                  padding: const EdgeInsets.all(
+                                                    8.0,
+                                                  ),
                                                   child: Text(
                                                     size.name,
                                                     style: Theme.of(context)
@@ -258,8 +265,10 @@ class ProductDetailsPage extends StatelessWidget {
                                           color: AppColors.black,
                                         ),
                                   ),
-                                  BlocBuilder<ProductDeailsCubit,
-                                      ProductDeailsState>(
+                                  BlocBuilder<
+                                    ProductDeailsCubit,
+                                    ProductDeailsState
+                                  >(
                                     bloc: cubit,
                                     buildWhen: (previous, current) =>
                                         current is ProductAddedToCart ||
@@ -276,8 +285,8 @@ class ProductDetailsPage extends StatelessWidget {
                                                   BorderRadius.circular(30),
                                             ),
                                           ),
-                                          child: const CircularProgressIndicator
-                                              .adaptive(),
+                                          child:
+                                              const CircularProgressIndicator.adaptive(),
                                         );
                                       } else if (state is ProductAddedToCart) {
                                         return ElevatedButton(
@@ -298,11 +307,13 @@ class ProductDetailsPage extends StatelessWidget {
                                           if (cubit.selectedSize != null) {
                                             cubit.addToCart(product.id);
                                           } else {
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
                                               const SnackBar(
-                                                content:
-                                                    Text('Please select a size'),
+                                                content: Text(
+                                                  'Please select a size',
+                                                ),
                                               ),
                                             );
                                           }
@@ -326,8 +337,9 @@ class ProductDetailsPage extends StatelessWidget {
                                           backgroundColor: AppColors.primary,
                                           foregroundColor: AppColors.white,
                                           shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(30),
+                                            borderRadius: BorderRadius.circular(
+                                              30,
+                                            ),
                                           ),
                                         ),
                                       );

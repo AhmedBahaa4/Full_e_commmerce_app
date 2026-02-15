@@ -33,10 +33,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   controller: _tabcontroller,
                   unselectedLabelColor: AppColors.grey,
                   unselectedLabelStyle: const TextStyle(fontSize: 16),
-    
+
                   tabs: const [
                     Tab(text: 'Home'),
-    
+
                     Tab(text: 'Category'),
                   ],
                 ),

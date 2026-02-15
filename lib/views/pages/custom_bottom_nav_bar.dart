@@ -6,6 +6,10 @@ import 'package:e_commerc_app/views/widgets/custom_nav_bar_widget.dart';
 import 'package:e_commerc_app/views/widgets/drawer_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:e_commerc_app/views/pages/home_page.dart';
+import 'package:e_commerc_app/views_models/cubit/cart_cubit/cart_cubit.dart';
+import 'package:e_commerc_app/views_models/cubit/fav_cubit/favorite_cubit_cubit.dart';
+import 'package:e_commerc_app/views_models/cubit/home_cubit/home_cubit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
 class CustomBottomNavBar extends StatefulWidget {
@@ -25,17 +29,21 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
   void initState() {
     super.initState();
     _controller = PersistentTabController();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<HomeCubit>().getHomeData();
+      context.read<CartCubit>().getCartItems();
+      context.read<FavoriteCubit>().getFavoriteProducts();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-drawer: DrawerWidget(controller: _controller),
+      drawer: DrawerWidget(controller: _controller),
 
       key: _scaffoldKey,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        
 
         backgroundColor: AppColors.white,
         elevation: 0,
@@ -44,7 +52,6 @@ drawer: DrawerWidget(controller: _controller),
           children: [
             Row(
               children: [
-              
                 IconButton(
                   onPressed: () {
                     _scaffoldKey.currentState?.openDrawer();
@@ -56,6 +63,7 @@ drawer: DrawerWidget(controller: _controller),
                   ),
                 ),
                 const SizedBox(width: 8),
+
                 // Text(
                 //   currentIndex == 0
                 //       ? 'Home'
@@ -70,7 +78,6 @@ drawer: DrawerWidget(controller: _controller),
                 //     fontWeight: FontWeight.bold,
                 //   ),
                 // ),
-             
               ],
             ),
 

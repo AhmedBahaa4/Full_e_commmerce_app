@@ -17,9 +17,7 @@ class PaymentMethodItem extends StatelessWidget {
     return InkWell(
       onTap: onItemTapped,
       child: DecoratedBox(
-       
         decoration: BoxDecoration(
-         
           borderRadius: BorderRadius.circular(12),
           color: AppColors.white,
           border: Border.all(color: AppColors.grey3),
@@ -38,7 +36,10 @@ class PaymentMethodItem extends StatelessWidget {
           ),
           title: const Text(
             'MasterCard',
-            style: TextStyle(color: AppColors.black, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: AppColors.black,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           subtitle: Text(
             '**** **** **** ${paymentCard.cardNumber.substring(paymentCard.cardNumber.length - 4)}',

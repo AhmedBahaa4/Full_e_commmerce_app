@@ -15,9 +15,9 @@ class SocialMediaBottom extends StatelessWidget {
     this.onTap,
     this.isLoading = false,
   }) : assert(
-          (imgurl != null && text != null && onTap != null) || isLoading == true,
-          'Either provide imgurl, text, and onTap, or set isLoading to true',
-        );
+         (imgurl != null && text != null && onTap != null) || isLoading == true,
+         'Either provide imgurl, text, and onTap, or set isLoading to true',
+       );
 
   @override
   Widget build(BuildContext context) {
@@ -55,10 +55,10 @@ class SocialMediaBottom extends StatelessWidget {
                       Text(
                         text!,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.black,
-                              fontSize: 16,
-                            ),
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.black,
+                          fontSize: 16,
+                        ),
                       ),
                   ],
                 ),

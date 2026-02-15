@@ -238,7 +238,8 @@ class _LoginPageState extends State<LoginPage> {
                   BlocConsumer<AuthCubit, AuthState>(
                     bloc: cubit,
                     listenWhen: (previous, current) =>
-                        current is FacebookAuthDone || current is FacebookAuthError,
+                        current is FacebookAuthDone ||
+                        current is FacebookAuthError,
                     listener: (context, state) {
                       if (state is FacebookAuthDone) {
                         Navigator.of(

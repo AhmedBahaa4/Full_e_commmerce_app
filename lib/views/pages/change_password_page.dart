@@ -117,8 +117,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                     ),
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        
-                       Navigator.pop(context);
+                        Navigator.pop(context);
                       }
                     },
                   ),

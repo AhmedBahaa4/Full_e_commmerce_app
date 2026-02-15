@@ -27,11 +27,18 @@ class ProfileItemWidget extends StatelessWidget {
         leading: Icon(icon, color: iconColor ?? AppColors.black),
         title: Text(
           title,
-          style: TextStyle(color: textColor ??  AppColors.black, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: textColor ?? AppColors.black,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         trailing: trailingText != null
-            ? Text(                trailingText!,
-                style: const TextStyle(color: AppColors.grey , fontWeight: FontWeight.bold),
+            ? Text(
+                trailingText!,
+                style: const TextStyle(
+                  color: AppColors.grey,
+                  fontWeight: FontWeight.bold,
+                ),
               )
             : const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
         onTap: onTap, // ✅ دي التعديل المهم

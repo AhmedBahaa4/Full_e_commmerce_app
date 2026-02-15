@@ -1,12 +1,15 @@
 class UserData {
-final String uid;
-final String email;
-final String name;
-final String createdAt;
+  final String uid;
+  final String email;
+  final String name;
+  final String createdAt;
 
-  UserData({required this.uid, required this.email, required this.name, required this.createdAt });
-
-
+  UserData({
+    required this.uid,
+    required this.email,
+    required this.name,
+    required this.createdAt,
+  });
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
@@ -25,5 +28,4 @@ final String createdAt;
       createdAt: map['createdAt'] as String,
     );
   }
-
 }

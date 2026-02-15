@@ -18,8 +18,9 @@ class ProductDeailsCubit extends Cubit<ProductDeailsState> {
   void getProductDetails(String id) async {
     emit(ProductDetailsLoading());
     try {
-      final selectedProduct =
-          await productDetailsServices.fetchProductDetails(id);
+      final selectedProduct = await productDetailsServices.fetchProductDetails(
+        id,
+      );
 
       emit(ProductDetailsLoaded(product: selectedProduct));
     } catch (e) {
@@ -37,8 +38,9 @@ class ProductDeailsCubit extends Cubit<ProductDeailsState> {
   Future<void> addToCart(String productId) async {
     emit(ProductAddingToCart());
     try {
-      final selectedProduct =
-          await productDetailsServices.fetchProductDetails(productId);
+      final selectedProduct = await productDetailsServices.fetchProductDetails(
+        productId,
+      );
 
       final currentUser = authServices.currentUser();
 
@@ -49,8 +51,7 @@ class ProductDeailsCubit extends Cubit<ProductDeailsState> {
         quantity: quantity,
       );
 
-      await productDetailsServices.addTocart(
-          cartItem, currentUser!.uid);
+      await productDetailsServices.addTocart(cartItem, currentUser!.uid);
 
       emit(ProductAddedToCart(productId: productId));
     } catch (e) {

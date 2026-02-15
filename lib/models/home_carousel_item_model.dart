@@ -1,6 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
-
 class HomeCarouselItemModel {
   final String imgUrl;
   final String id;
@@ -8,10 +7,7 @@ class HomeCarouselItemModel {
   HomeCarouselItemModel({required this.imgUrl, required this.id});
 
   Map<String, dynamic> toMap() {
-    return <String, dynamic>{
-      'imgUrl': imgUrl,
-      'id': id,
-    };
+    return <String, dynamic>{'imgUrl': imgUrl, 'id': id};
   }
 
   factory HomeCarouselItemModel.fromMap(Map<String, dynamic> map) {
@@ -20,7 +16,6 @@ class HomeCarouselItemModel {
       id: map['id'] as String,
     );
   }
-
 }
 
 List<HomeCarouselItemModel> dummyHomeCarouselItems = [
@@ -44,6 +39,4 @@ List<HomeCarouselItemModel> dummyHomeCarouselItems = [
     imgUrl:
         'https://marketplace.canva.com/EAFMdLQAxDU/1/0/1600w/canva-white-and-gray-modern-real-estate-modern-home-banner-NpQukS8X1oo.jpg',
   ),
- 
-
 ];

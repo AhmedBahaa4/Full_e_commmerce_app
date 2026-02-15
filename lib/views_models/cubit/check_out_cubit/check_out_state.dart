@@ -24,5 +24,5 @@ final class CheckOutLoaded extends CheckOutState {
 
 final class CheckOutError extends CheckOutState {
   final String message;
-  CheckOutError( {required this.message});
+  CheckOutError({required this.message});
 }

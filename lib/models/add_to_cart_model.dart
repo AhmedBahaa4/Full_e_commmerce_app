@@ -1,25 +1,21 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
-
 import 'package:e_commerc_app/models/product_item_model.dart';
 
 class AddToCartModel {
   final String id;
   final ProductItemModel product;
   final ProductSize size;
-  final  int  quantity;
+  final int quantity;
 
   AddToCartModel({
     required this.id,
     required this.size,
     required this.quantity,
     required this.product,
-   
   });
 
-   double get totalPrice => product.price * quantity;
-
- 
+  double get totalPrice => product.price * quantity;
 
   AddToCartModel copyWith({
     String? id,
@@ -39,7 +35,7 @@ class AddToCartModel {
     return <String, dynamic>{
       'id': id,
       'product': product.toMap(),
-    'size': size.toShortString(),
+      'size': size.toShortString(),
       'quantity': quantity,
     };
   }
@@ -47,15 +43,12 @@ class AddToCartModel {
   factory AddToCartModel.fromMap(Map<String, dynamic> map) {
     return AddToCartModel(
       id: map['id'] as String,
-      product: ProductItemModel.fromMap(map['product'] ),
-size: ProductSize.fromString(map['size'] ),
+      product: ProductItemModel.fromMap(map['product']),
+      size: ProductSize.fromString(map['size']),
       quantity: map['quantity'] as int,
     );
   }
-
-
-  }
-
+}
 
 // Dummy cart list
 List<AddToCartModel> dummyCart = [];

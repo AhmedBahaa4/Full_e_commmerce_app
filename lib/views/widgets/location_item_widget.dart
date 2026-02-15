@@ -62,6 +62,7 @@ class LocationItemWidget extends StatelessWidget {
     );
   }
 }
+
 /* Container(
                           margin: const EdgeInsets.only(bottom: 12),
                           decoration: BoxDecoration(

@@ -20,9 +20,9 @@ class HomeCubit extends Cubit<HomeState> {
       final currentUser = authServices.currentUser();
       final products = await homeServices.fetchProducts();
       final homeCarouselItems = await homeServices.fetchHomeCarouselItems();
-      final favoritesProducts = await favoriteServices.getFavorites(
-        currentUser!.uid,
-      );
+      final favoritesProducts = currentUser == null
+          ? <ProductItemModel>[]
+          : await favoriteServices.getFavorites(currentUser.uid);
 
       final List<ProductItemModel> finalProducts = products.map((product) {
         final isFavorite = favoritesProducts.any(
@@ -44,11 +44,20 @@ class HomeCubit extends Cubit<HomeState> {
 
     try {
       final currentUser = authServices.currentUser();
-      final userId = currentUser!.uid;
+      if (currentUser == null) {
+        emit(
+          SetFavoriteError(
+            message: 'You need to login first',
+            productId: product.id,
+          ),
+        );
+        return;
+      }
+      final userId = currentUser.uid;
       final favoriteProducts = await favoriteServices.getFavorites(userId);
       final isFavorite = favoriteProducts.any((item) => item.id == product.id);
       if (isFavorite) {
-        await favoriteServices.removeFavorite(product.id, userId);
+        await favoriteServices.removeFavorite(userId, product.id);
       } else {
         await favoriteServices.addFavorite(userId, product);
       }

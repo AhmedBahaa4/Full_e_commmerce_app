@@ -1,4 +1,3 @@
-
 // import 'package:geolocator/geolocator.dart';
 // import 'package:geolocator_android/geolocator_android.dart';
 // import 'package:geolocator_android/geolocator_web.dart';
@@ -12,7 +11,7 @@
 //       distanceFilter: 100,
 //       forceLocationManager: true,
 //       intervalDuration: const Duration(seconds: 10),
-//       //(Optional) Set foreground notification config to keep the app alive 
+//       //(Optional) Set foreground notification config to keep the app alive
 //       //when going to the background
 //       foregroundNotificationConfig: const ForegroundNotificationConfig(
 //         notificationText:

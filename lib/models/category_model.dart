@@ -30,6 +30,8 @@
 //     };
 //   }
 
+// ignore_for_file: deprecated_member_use
+
 //   factory CategoryModel.fromMap(Map<String, dynamic> map) {
 //     return CategoryModel(
 //       id: map['id'],
@@ -43,8 +45,6 @@
 // }
 import 'package:e_commerc_app/utils/app_color.dart';
 import 'package:flutter/material.dart';
-
-
 
 class CategoryModel {
   final String id;
@@ -65,15 +65,15 @@ class CategoryModel {
 
   Map<String, dynamic> toMap() {
     final result = <String, dynamic>{};
-  
+
     result.addAll({'id': id});
     result.addAll({'name': name});
     result.addAll({'productsCount': productsCount});
-    // ignore: deprecated_member_use
-    result.addAll({'bgColor': bgColor.value});
-    // ignore: deprecated_member_use
-    result.addAll({'textColor': textcolor.value});
-  
+
+    result.addAll({'bgColor': bgColor.toARGB32()});
+
+    result.addAll({'textColor': textcolor.toARGB32()});
+
     return result;
   }
 
@@ -82,8 +82,11 @@ class CategoryModel {
       id: map['id'] ?? '',
       name: map['name'] ?? '',
       productsCount: map['productsCount']?.toInt() ?? 0,
-      bgColor: Color(map['bgColor']),
-      textcolor: Color(map['textcolor']),
+      bgColor: Color((map['bgColor'] ?? AppColors.primary.toARGB32()) as int),
+      textcolor: Color(
+        (map['textcolor'] ?? map['textColor'] ?? AppColors.white.toARGB32())
+            as int,
+      ),
     );
   }
 }
@@ -94,7 +97,7 @@ List<CategoryModel> dummyCategories = [
     name: 'New Arrivals',
     productsCount: 208,
     bgColor: AppColors.grey,
-  textcolor  : AppColors.black,
+    textcolor: AppColors.black,
   ),
   CategoryModel(
     id: '2',
@@ -115,13 +118,13 @@ List<CategoryModel> dummyCategories = [
     name: 'Shoes',
     productsCount: 230,
     bgColor: AppColors.grey,
-    textcolor: AppColors.black
+    textcolor: AppColors.black,
   ),
   CategoryModel(
     id: '5',
     name: 'Electronics',
     productsCount: 101,
     bgColor: AppColors.blue,
-    textcolor: AppColors.white
+    textcolor: AppColors.white,
   ),
 ];

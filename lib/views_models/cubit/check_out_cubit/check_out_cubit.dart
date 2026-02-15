@@ -25,7 +25,12 @@ class CheckOutCubit extends Cubit<CheckOutState> {
 
     try {
       final currentUser = authservices.currentUser();
-      final cartItems = await cartServices.fetchCartItems(currentUser!.uid);
+      if (currentUser == null) {
+        emit(CheckOutError(message: 'You need to login first'));
+        return;
+      }
+
+      final cartItems = await cartServices.fetchCartItems(currentUser.uid);
       final subtotal = cartItems.fold(
         0.0,
         (previousValue, element) =>
@@ -36,22 +41,24 @@ class CheckOutCubit extends Cubit<CheckOutState> {
         (previousValue, element) => previousValue + element.quantity,
       );
 
-      final choosenpaymentCards = (await checkOutServices.fetchPaymentMethods(
+      final chosenPaymentCards = await checkOutServices.fetchPaymentMethods(
         currentUser.uid,
         true,
-      )).first;
+      );
       // get choosen address
-      final chosenAdress = (await locationServices.fetchLocations(
+      final chosenAddress = await locationServices.fetchLocations(
         currentUser.uid,
         isChoosen: true,
-      )).first;
+      );
       emit(
         CheckOutLoaded(
           cartItems: cartItems,
           totalAmount: subtotal + 10,
           numberOfProducts: numberOfProducts,
-          choosenpaymentCard: choosenpaymentCards,
-          chosenAdress: chosenAdress,
+          choosenpaymentCard: chosenPaymentCards.isNotEmpty
+              ? chosenPaymentCards.first
+              : null,
+          chosenAdress: chosenAddress.isNotEmpty ? chosenAddress.first : null,
         ),
       );
     } catch (e) {

@@ -14,14 +14,17 @@ final class AddNewCardFailure extends PaymentMethodsState {
 }
 
 final class FetchingPaymentMethods extends PaymentMethodsState {}
+
 final class FetchedPaymentMethodss extends PaymentMethodsState {
   final List<PaymentCardModel> paymentCards;
   FetchedPaymentMethodss(this.paymentCards);
 }
+
 final class FetchedPaymentMethodsFailure extends PaymentMethodsState {
   final String errorMessage;
   FetchedPaymentMethodsFailure(this.errorMessage);
 }
+
 final class PaymentMethodChosen extends PaymentMethodsState {
   final PaymentCardModel chosenPayment;
   PaymentMethodChosen(this.chosenPayment);

@@ -126,9 +126,8 @@ class _RegisterPageState extends State<RegisterPage> {
                         onTap: () async {
                           if (_formKey.currentState!.validate()) {
                             await cubit.registerWithEmailAndPassword(
-                               
                               _emailController.text,
-                               _passwordController.text,
+                              _passwordController.text,
                               _usernameController.text,
                             );
                           }
@@ -173,7 +172,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     bloc: cubit,
 
                     listenWhen: (previous, current) =>
-                        current is AuthDone || current is AuthError,
+                        current is GoogleAuthDone || current is GoogleAuthError,
                     listener: (context, state) {
                       if (state is GoogleAuthDone) {
                         Navigator.of(
@@ -234,7 +233,9 @@ class _RegisterPageState extends State<RegisterPage> {
                   SizedBox(height: size.height * 0.02),
                   BlocConsumer<AuthCubit, AuthState>(
                     bloc: cubit,
-                    listenWhen: (previous, current) => current is FacebookAuthDone || current is FacebookAuthError,
+                    listenWhen: (previous, current) =>
+                        current is FacebookAuthDone ||
+                        current is FacebookAuthError,
                     listener: (context, state) {
                       if (state is FacebookAuthDone) {
                         Navigator.of(

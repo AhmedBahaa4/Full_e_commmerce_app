@@ -107,25 +107,25 @@ class CartItemWidget extends StatelessWidget {
                         ],
                       );
                     }
-                   return Row(
-  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  children: [
-    CartCounterWidget(
-      cartItem: cartItem,
-      value: cartItem.quantity,
-      cubit: cubit,
-    ),
-    Text(
-      '\$ ${cartItem.totalPrice.toStringAsFixed(1)}',
-      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-        color: AppColors.black,
-        fontSize: 20,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-  ],
-);
-
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CartCounterWidget(
+                          cartItem: cartItem,
+                          value: cartItem.quantity,
+                          cubit: cubit,
+                        ),
+                        Text(
+                          '\$ ${cartItem.totalPrice.toStringAsFixed(1)}',
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(
+                                color: AppColors.black,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                      ],
+                    );
                   },
                 ),
               ],

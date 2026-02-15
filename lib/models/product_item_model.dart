@@ -85,17 +85,17 @@ class ProductItemModel {
     };
   }
 
-factory ProductItemModel.fromMap(Map<String, dynamic> map) {
-  return ProductItemModel(
-    name: map['name'] ?? '',
-    id: map['id'] ?? '',
-    imgUrl: map['imgUrl'] ?? '',
-    description: map['description'] ?? '',
-    price: (map['price'] as num?)?.toDouble() ?? 0.0,
-    category: map['category'] ?? '',
-    averageRate: (map['averageRate'] as num?)?.toDouble() ?? 0.0,
-  );
-}
+  factory ProductItemModel.fromMap(Map<String, dynamic> map) {
+    return ProductItemModel(
+      name: map['name'] ?? '',
+      id: map['id'] ?? '',
+      imgUrl: map['imgUrl'] ?? '',
+      description: map['description'] ?? '',
+      price: (map['price'] as num?)?.toDouble() ?? 0.0,
+      category: map['category'] ?? '',
+      averageRate: (map['averageRate'] as num?)?.toDouble() ?? 0.0,
+    );
+  }
 }
 
 List<ProductItemModel> dummyProducts = [

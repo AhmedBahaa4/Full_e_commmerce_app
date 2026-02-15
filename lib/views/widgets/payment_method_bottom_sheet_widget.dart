@@ -145,9 +145,14 @@ class PaymentMethodBottomSheetWidget extends StatelessWidget {
               // 🔹 زر إضافة كارت جديد
               InkWell(
                 onTap: () {
-                  Navigator.of(context).pushNamed(AppRoutes.addNewCardRoute , arguments: paymentMethodCubit).then((value) async {
-                  await  paymentMethodCubit.fetchPaymentMethods();
-                  });
+                  Navigator.of(context)
+                      .pushNamed(
+                        AppRoutes.addNewCardRoute,
+                        arguments: paymentMethodCubit,
+                      )
+                      .then((value) async {
+                        await paymentMethodCubit.fetchPaymentMethods();
+                      });
                 },
                 child: const Card(
                   color: AppColors.grey3,
@@ -210,7 +215,6 @@ class PaymentMethodBottomSheetWidget extends StatelessWidget {
                     textColor: AppColors.black2,
                     onTap: () {
                       paymentMethodCubit.confirmPaymentMethod();
-                     
                     },
                   );
                 },

@@ -1,5 +1,3 @@
-
-
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 class LocationItemModel {
   final String id;
@@ -8,7 +6,7 @@ class LocationItemModel {
   final String country;
   final bool isChoosen;
 
-  const  LocationItemModel({
+  const LocationItemModel({
     required this.id,
     this.imgurl =
         'https://previews.123rf.com/images/emojoez/emojoez1903/emojoez190300018/119684277-illustrations-design-concept-location-maps-with-road-follow-route-for-destination-drive-by-gps.jpg',
@@ -52,12 +50,10 @@ class LocationItemModel {
       isChoosen: map['isChoosen'] as bool,
     );
   }
-
-
 }
 
 List<LocationItemModel> dummyLocations = [
- const LocationItemModel(id: '1', city: 'Cairo', country: 'Egypt'),
+  const LocationItemModel(id: '1', city: 'Cairo', country: 'Egypt'),
   const LocationItemModel(id: '2', city: 'Giza  ', country: 'Egypt'),
   const LocationItemModel(id: '3', city: 'Alexandria', country: 'Egypt'),
 ];

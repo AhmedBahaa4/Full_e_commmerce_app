@@ -157,7 +157,8 @@ class CartPage extends StatelessWidget {
                           child: ElevatedButton(
                             onPressed: () {
                               Navigator.of(
-                                context, rootNavigator: true,
+                                context,
+                                rootNavigator: true,
                               ).pushNamed(AppRoutes.checkoutRoute);
                             },
                             style: ElevatedButton.styleFrom(

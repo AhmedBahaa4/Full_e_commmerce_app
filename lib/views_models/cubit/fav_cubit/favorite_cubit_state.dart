@@ -17,7 +17,7 @@ final class FavoriteError extends FavoriteCubitState {
   FavoriteError({required this.message});
 }
 
-final class FavoriteRmoved  extends FavoriteCubitState{
+final class FavoriteRmoved extends FavoriteCubitState {
   final String productId;
 
   FavoriteRmoved({required this.productId});
@@ -27,7 +27,6 @@ final class FavoriteRmoveving extends FavoriteCubitState {
   final String productId;
 
   FavoriteRmoveving({required this.productId});
-
 }
 
 final class FavoriteRmovevEror extends FavoriteCubitState {

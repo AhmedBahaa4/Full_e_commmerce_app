@@ -25,16 +25,14 @@ final class SetFavoriteLoading extends HomeState {
 
 final class SetFavoriteSuccess extends HomeState {
   final bool isFavorite;
-   final String productId;
+  final String productId;
 
   SetFavoriteSuccess({required this.isFavorite, required this.productId});
-
 }
 
 final class SetFavoriteError extends HomeState {
-
   final String message;
-   final String productId;
+  final String productId;
 
   SetFavoriteError({required this.message, required this.productId});
 }

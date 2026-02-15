@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:e_commerc_app/utils/app_color.dart';
 import 'package:e_commerc_app/utils/app_router.dart';
 import 'package:e_commerc_app/utils/app_routes.dart';
@@ -20,16 +22,15 @@ Future<void> main() async {
   await initializeApp();
 
   /// ⭐ نعرف المستخدم شاف onboarding ولا لأ
-  final bool seenOnboarding =
-      await OnboardingCubit.hasSeenOnboarding();
+  final bool seenOnboarding = await OnboardingCubit.hasSeenOnboarding();
 
   runApp(
     MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => ThemeCubit()),
-        BlocProvider(create: (_) => CartCubit()..getCartItems()),
-        BlocProvider(create: (_) => HomeCubit()..getHomeData()),
-        BlocProvider(create: (_) => FavoriteCubit()..getFavoriteProducts()),
+        BlocProvider(create: (_) => CartCubit()),
+        BlocProvider(create: (_) => HomeCubit()),
+        BlocProvider(create: (_) => FavoriteCubit()),
         BlocProvider(create: (_) => ProductDeailsCubit()),
         BlocProvider(create: (_) => OnboardingCubit()),
       ],
@@ -49,24 +50,22 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 Future<void> handleNotifications() async {
-  FirebaseMessaging.onBackgroundMessage(
-    _firebaseMessagingBackgroundHandler,
-  );
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   FirebaseMessaging messaging = FirebaseMessaging.instance;
   await messaging.requestPermission(alert: true, sound: true);
 
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    if (message.notification != null) {
+    final context = navigatorKey.currentContext;
+    if (message.notification != null && context != null) {
       showDialog(
-        context: navigatorKey.currentContext!,
+        context: context,
         builder: (_) => AlertDialog(
           title: Text(message.notification!.title ?? ''),
           content: Text(message.notification!.body ?? ''),
           actions: [
             TextButton(
-              onPressed: () =>
-                  Navigator.pop(navigatorKey.currentContext!),
+              onPressed: () => Navigator.pop(context),
               child: const Text('OK'),
             ),
           ],
@@ -76,11 +75,11 @@ Future<void> handleNotifications() async {
   });
 
   FirebaseMessaging.onMessageOpenedApp.listen((message) {
-    final productId = message.data['product_id'];
-    if (productId != null) {
+    final productId = message.data['product_id']?.toString();
+    if (productId != null && productId.isNotEmpty) {
       navigatorKey.currentState?.pushNamed(
         AppRoutes.productDetailsRoute,
-        arguments: {'product_id': productId},
+        arguments: productId,
       );
     }
   });
@@ -120,8 +119,8 @@ class MyApp extends StatelessWidget {
                 initialRoute: !seenOnboarding
                     ? AppRoutes.onboarding
                     : authState is AuthDone
-                        ? AppRoutes.homeroute
-                        : AppRoutes.loginPage,
+                    ? AppRoutes.homeroute
+                    : AppRoutes.loginPage,
 
                 onGenerateRoute: AppRouter.onGenerateRoute,
               );

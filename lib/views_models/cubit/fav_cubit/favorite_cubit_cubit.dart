@@ -15,8 +15,12 @@ class FavoriteCubit extends Cubit<FavoriteCubitState> {
 
     try {
       final currentUser = authServices.currentUser();
+      if (currentUser == null) {
+        emit(FavoriteLoaded(favoriteProducts: const <ProductItemModel>[]));
+        return;
+      }
       final favoriteProducts = await favoriteServices.getFavorites(
-        currentUser!.uid,
+        currentUser.uid,
       );
       emit(FavoriteLoaded(favoriteProducts: favoriteProducts));
     } catch (e) {
@@ -28,7 +32,11 @@ class FavoriteCubit extends Cubit<FavoriteCubitState> {
     emit(FavoriteRmoveving(productId: productId));
     try {
       final currentUser = authServices.currentUser();
-      await favoriteServices.removeFavorite(currentUser!.uid, productId);
+      if (currentUser == null) {
+        emit(FavoriteRmovevEror(message: 'You need to login first'));
+        return;
+      }
+      await favoriteServices.removeFavorite(currentUser.uid, productId);
 
       emit(FavoriteRmoved(productId: productId));
       final favoriteProducts = await favoriteServices.getFavorites(

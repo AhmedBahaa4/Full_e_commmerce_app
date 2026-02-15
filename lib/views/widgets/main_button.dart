@@ -8,7 +8,7 @@ class MainButton extends StatelessWidget {
   final Color backgroundColor;
   final Color textColor;
   final bool isLoading;
-   MainButton({
+  MainButton({
     super.key,
     this.text,
     this.onTap,
@@ -16,10 +16,8 @@ class MainButton extends StatelessWidget {
     this.backgroundColor = AppColors.primary,
     this.textColor = Colors.white,
     this.isLoading = false,
-  }) 
-  {
-    assert(text != null || isLoading == true,);
-        
+  }) {
+    assert(text != null || isLoading == true);
   }
 
   @override

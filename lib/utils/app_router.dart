@@ -47,9 +47,9 @@ class AppRouter {
 
           settings: settings,
         );
-          case AppRoutes.onboarding:
+      case AppRoutes.onboarding:
         return MaterialPageRoute(
-          builder: (_) =>  OnboardingPage(),
+          builder: (_) => OnboardingPage(),
 
           settings: settings,
         );
@@ -91,14 +91,14 @@ class AppRouter {
         );
 
       case AppRoutes.addNewCardRoute:
-        final paymentMethodsCubit = settings.arguments as PaymentMethodsCubit;
+        final paymentMethodsCubit = settings.arguments is PaymentMethodsCubit
+            ? settings.arguments as PaymentMethodsCubit
+            : PaymentMethodsCubit();
         return MaterialPageRoute(
           builder: (_) => BlocProvider.value(
             value: paymentMethodsCubit,
-
             child: const AddNewCardPage(),
-          ), // remove block provider
-
+          ),
           settings: settings,
         );
 
@@ -118,15 +118,32 @@ class AppRouter {
         );
 
       case AppRoutes.productDetailsRoute:
-        final String productId = settings.arguments as String;
+        String? productId;
+        final args = settings.arguments;
+
+        if (args is String) {
+          productId = args;
+        } else if (args is Map && args['product_id'] is String) {
+          productId = args['product_id'] as String;
+        }
+
+        if (productId == null || productId.isEmpty) {
+          return MaterialPageRoute(
+            builder: (_) =>
+                const Scaffold(body: Center(child: Text('Invalid product id'))),
+            settings: settings,
+          );
+        }
+        final safeProductId = productId;
+
         return MaterialPageRoute(
           builder: (_) => BlocProvider(
             create: (context) {
               final cubit = ProductDeailsCubit();
-              cubit.getProductDetails(productId);
+              cubit.getProductDetails(safeProductId);
               return cubit;
             },
-            child: ProductDetailsPage(productId: productId),
+            child: ProductDetailsPage(productId: safeProductId),
           ),
 
           settings: settings,

@@ -49,8 +49,6 @@ class AuthServicesImpl implements AuthServices {
 
   @override
   Future<void> logout() async {
-   
-
     await GoogleSignIn().signOut();
     await FacebookAuth.instance.logOut();
     await _firebaseAuth.signOut();

@@ -8,7 +8,6 @@ abstract class HomeServices {
   Future<List<ProductItemModel>> fetchProducts();
   Future<List<HomeCarouselItemModel>> fetchHomeCarouselItems();
   Future<List<CategoryModel>> fetchCategories();
-
 }
 
 class HomeServicesImpl implements HomeServices {
@@ -48,6 +47,4 @@ class HomeServicesImpl implements HomeServices {
 
     return result;
   }
-
-
 }

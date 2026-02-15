@@ -21,25 +21,21 @@ final class SizeSelected extends ProductDeailsState {
   final ProductSize size;
   SizeSelected({required this.size});
 }
- final class ProductAddedToCart extends ProductDeailsState {
-  
+
+final class ProductAddedToCart extends ProductDeailsState {
   final String productId;
   ProductAddedToCart({required this.productId});
+}
 
- }
- final class ProductAddingToCart extends ProductDeailsState {}
+final class ProductAddingToCart extends ProductDeailsState {}
 
- final class ProductAddedToCartError extends ProductDeailsState {
-  
+final class ProductAddedToCartError extends ProductDeailsState {
   final String message;
   ProductAddedToCartError({required this.message});
- }
-
+}
 
 final class ProductDetailsError extends ProductDeailsState {
-
   final String message;
 
   ProductDetailsError({required this.message});
 }
-

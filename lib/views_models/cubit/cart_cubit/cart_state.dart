@@ -31,6 +31,7 @@ final class QuantityCounterLoaded extends CartState {
   final String productId;
   const QuantityCounterLoaded({required this.value, required this.productId});
 }
+
 final class SubTotalUpdated extends CartState {
   final double subTotal;
   final double shipping;

@@ -31,7 +31,11 @@ class PaymentMethodsCubit extends Cubit<PaymentMethodsState> {
         id: DateTime.now().toIso8601String(),
       );
       final currentUser = authservices.currentUser();
-      await checkOutServices.setCard(newcard, currentUser!.uid);
+      if (currentUser == null) {
+        emit(AddNewCardFailure('You need to login first'));
+        return;
+      }
+      await checkOutServices.setCard(newcard, currentUser.uid);
 
       emit(AddNewCardSuccess());
     } catch (e) {
@@ -45,8 +49,12 @@ class PaymentMethodsCubit extends Cubit<PaymentMethodsState> {
 
     try {
       final currentUser = authservices.currentUser();
+      if (currentUser == null) {
+        emit(FetchedPaymentMethodsFailure('You need to login first'));
+        return;
+      }
       final paymentCrds = await checkOutServices.fetchPaymentMethods(
-        currentUser!.uid,
+        currentUser.uid,
       );
       emit(FetchedPaymentMethodss(paymentCrds));
 
@@ -69,9 +77,13 @@ class PaymentMethodsCubit extends Cubit<PaymentMethodsState> {
     try {
       selectedPaymentId = id;
       final currentUser = authservices.currentUser();
+      if (currentUser == null) {
+        emit(FetchedPaymentMethodsFailure('You need to login first'));
+        return;
+      }
 
       final tempchosenPaymentMethod = await checkOutServices
-          .fetchSinglePaymentMethod(currentUser!.uid, selectedPaymentId!);
+          .fetchSinglePaymentMethod(currentUser.uid, selectedPaymentId!);
       emit(PaymentMethodChosen(tempchosenPaymentMethod));
     } catch (e) {
       emit(FetchedPaymentMethodsFailure(e.toString()));
@@ -83,21 +95,33 @@ class PaymentMethodsCubit extends Cubit<PaymentMethodsState> {
     emit(ConfirmPaymentLoading());
     try {
       final currentUser = authservices.currentUser();
+      if (currentUser == null) {
+        emit(ConfirmPaymentFailure('You need to login first'));
+        return;
+      }
+      if (selectedPaymentId == null || selectedPaymentId!.isEmpty) {
+        emit(ConfirmPaymentFailure('Please choose a payment method'));
+        return;
+      }
+
       final previousChoosenPayment = await checkOutServices.fetchPaymentMethods(
-        currentUser!.uid,
+        currentUser.uid,
         true,
       );
-      final previousChoosenPaymentMethod = previousChoosenPayment.first
-          .copyWith(ischoosen: false);
       var chosenPaymentMethod = await checkOutServices.fetchSinglePaymentMethod(
         currentUser.uid,
         selectedPaymentId!,
       );
       chosenPaymentMethod = chosenPaymentMethod.copyWith(ischoosen: true);
-      await checkOutServices.setCard(
-        previousChoosenPaymentMethod,
-        currentUser.uid,
-      );
+      if (previousChoosenPayment.isNotEmpty &&
+          previousChoosenPayment.first.id != chosenPaymentMethod.id) {
+        final previousChoosenPaymentMethod = previousChoosenPayment.first
+            .copyWith(ischoosen: false);
+        await checkOutServices.setCard(
+          previousChoosenPaymentMethod,
+          currentUser.uid,
+        );
+      }
       await checkOutServices.setCard(chosenPaymentMethod, currentUser.uid);
 
       emit(PaymentMethodChosen(chosenPaymentMethod));

@@ -18,10 +18,7 @@ class OnboardingPage extends StatelessWidget {
         child: BlocConsumer<OnboardingCubit, OnboardingState>(
           listener: (context, state) {
             if (state is OnboardingCompleted) {
-              Navigator.pushReplacementNamed(
-                context,
-                AppRoutes.loginPage,
-              );
+              Navigator.pushReplacementNamed(context, AppRoutes.loginPage);
             }
           },
           builder: (context, state) {
@@ -67,22 +64,19 @@ class OnboardingPage extends StatelessWidget {
                 // Dots Indicator
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(
-                    onboardingPages.length,
-                    (index) {
-                      final isActive = index == cubit.currentPage;
-                      return AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        margin: const EdgeInsets.symmetric(horizontal: 5),
-                        height: 10,
-                        width: isActive ? 25 : 10,
-                        decoration: BoxDecoration(
-                          color: isActive ? Colors.blue : Colors.grey,
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                      );
-                    },
-                  ),
+                  children: List.generate(onboardingPages.length, (index) {
+                    final isActive = index == cubit.currentPage;
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      margin: const EdgeInsets.symmetric(horizontal: 5),
+                      height: 10,
+                      width: isActive ? 25 : 10,
+                      decoration: BoxDecoration(
+                        color: isActive ? Colors.blue : Colors.grey,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                    );
+                  }),
                 ),
 
                 const SizedBox(height: 20),
@@ -91,13 +85,11 @@ class OnboardingPage extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: ElevatedButton(
                     onPressed: () {
-                      if (cubit.currentPage ==
-                          onboardingPages.length - 1) {
+                      if (cubit.currentPage == onboardingPages.length - 1) {
                         cubit.completeOnboarding();
                       } else {
                         _pageController.nextPage(
-                          duration:
-                              const Duration(milliseconds: 400),
+                          duration: const Duration(milliseconds: 400),
                           curve: Curves.easeInOut,
                         );
                       }
@@ -109,8 +101,7 @@ class OnboardingPage extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      cubit.currentPage ==
-                              onboardingPages.length - 1
+                      cubit.currentPage == onboardingPages.length - 1
                           ? 'Get Started'
                           : 'Next',
                       style: const TextStyle(fontSize: 18),

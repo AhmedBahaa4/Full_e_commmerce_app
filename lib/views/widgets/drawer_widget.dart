@@ -1,5 +1,3 @@
-
-
 import 'package:e_commerc_app/utils/app_color.dart';
 import 'package:e_commerc_app/utils/app_routes.dart';
 import 'package:e_commerc_app/views_models/cubit/theme_cubit/theme_cubit.dart';
@@ -7,13 +5,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
+
 class DrawerWidget extends StatelessWidget {
   final PersistentTabController controller;
 
-  const DrawerWidget({
-    super.key,
-    required this.controller,
-  });
+  const DrawerWidget({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +26,10 @@ class DrawerWidget extends StatelessWidget {
                   radius: 35,
                   backgroundImage: user?.photoURL != null
                       ? NetworkImage(user!.photoURL!)
-                      :   const NetworkImage('https://example.com/default_avatar.jpg')
-                          as ImageProvider,
+                      : const NetworkImage(
+                              'https://example.com/default_avatar.jpg',
+                            )
+                            as ImageProvider,
                 ),
                 const SizedBox(width: 12),
                 Column(
@@ -89,21 +87,19 @@ class DrawerWidget extends StatelessWidget {
             },
           ),
           BlocBuilder<ThemeCubit, ThemeMode>(
-  builder: (context, themeMode) {
-    final isDark = themeMode == ThemeMode.dark;
+            builder: (context, themeMode) {
+              final isDark = themeMode == ThemeMode.dark;
 
-    return SwitchListTile(
-      secondary: Icon(
-        isDark ? Icons.dark_mode : Icons.light_mode,
-      ),
-      title: const Text('Dark Mode'),
-      value: isDark,
-      onChanged: (value) {
-        context.read<ThemeCubit>().toggleTheme(value);
-      },
-    );
-  },
-),
+              return SwitchListTile(
+                secondary: Icon(isDark ? Icons.dark_mode : Icons.light_mode),
+                title: const Text('Dark Mode'),
+                value: isDark,
+                onChanged: (value) {
+                  context.read<ThemeCubit>().toggleTheme(value);
+                },
+              );
+            },
+          ),
 
           const Spacer(),
           const Divider(),
@@ -128,25 +124,19 @@ class DrawerWidget extends StatelessWidget {
   }
 }
 
-
-  /// Drawer Item
-  Widget _drawerItem({
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-    Color color = AppColors.black,
-  }) {
-    return ListTile(
-      leading: Icon(icon, color: color),
-      title: Text(
-        title,
-        style: TextStyle(
-          color: color,
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      onTap: onTap,
-    );
-  }
-
+/// Drawer Item
+Widget _drawerItem({
+  required IconData icon,
+  required String title,
+  required VoidCallback onTap,
+  Color color = AppColors.black,
+}) {
+  return ListTile(
+    leading: Icon(icon, color: color),
+    title: Text(
+      title,
+      style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.w500),
+    ),
+    onTap: onTap,
+  );
+}

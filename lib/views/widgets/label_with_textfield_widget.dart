@@ -1,16 +1,24 @@
 import 'package:e_commerc_app/utils/app_color.dart';
 import 'package:flutter/material.dart';
 
-
 class LabelWithTextField extends StatefulWidget {
-    final String label;
+  final String label;
   final TextEditingController controller;
   final IconData prefixIcon;
   final Widget? suffixIcon;
   final String hintText;
   final bool obsecureText;
-    final TextInputType? keyboardType;
-  const LabelWithTextField({super.key, required this.label, required this.controller, required this.prefixIcon, this.suffixIcon, required this.hintText, required this.obsecureText, this.keyboardType});
+  final TextInputType? keyboardType;
+  const LabelWithTextField({
+    super.key,
+    required this.label,
+    required this.controller,
+    required this.prefixIcon,
+    this.suffixIcon,
+    required this.hintText,
+    required this.obsecureText,
+    this.keyboardType,
+  });
 
   @override
   State<LabelWithTextField> createState() => _LabelWithTextFieldState();
@@ -22,14 +30,14 @@ class _LabelWithTextFieldState extends State<LabelWithTextField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-           Text(
+        Text(
           widget.label,
-          style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium!.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 16),
-         TextFormField(
+        TextFormField(
           controller: widget.controller,
           validator: (value) => value == null || value.isEmpty
               ? '${widget.label} cannot be empty!'
@@ -49,13 +57,10 @@ class _LabelWithTextFieldState extends State<LabelWithTextField> {
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(
-                color: AppColors.red,
-              ),
+              borderSide: const BorderSide(color: AppColors.red),
             ),
           ),
         ),
-
       ],
     );
   }
