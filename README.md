@@ -30,6 +30,37 @@ Production-style Flutter e-commerce application using Cubit + Firebase.
 - `lib/models/` app models
 - `lib/utils/` routes, colors, and app constants
 
+## Responsive & Landscape
+
+This project now includes a responsive system to improve layout behavior across:
+
+- Small phones
+- Large phones
+- Tablets
+- Landscape orientation
+
+Core helper:
+
+- `lib/utils/responsive_helper.dart`
+
+What it provides:
+
+- Screen/orientation checks (`isLandscape`, `isTablet`, `isDesktop`)
+- Adaptive content width (`maxContentWidth`)
+- Adaptive spacing (`horizontalPadding`)
+- Adaptive product grid columns (`productGridCount`)
+
+Updated responsive screens/components:
+
+- `lib/views/widgets/home_tab_view.dart`
+- `lib/views/pages/cart_page.dart`
+- `lib/views/widgets/cart_item_widget.dart`
+- `lib/views/pages/onboarding_page.dart`
+- `lib/views/pages/product_details_page.dart`
+- `lib/views/widgets/category_tab_view.dart`
+- `lib/views/pages/checkout_page.dart`
+- `lib/views/widgets/ai_floating_button.dart`
+
 ## Run Locally
 
 1. Install dependencies:
