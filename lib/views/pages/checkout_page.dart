@@ -1,9 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:e_commerc_app/models/add_to_cart_model.dart';
 import 'package:e_commerc_app/models/location_item_model.dart';
 import 'package:e_commerc_app/models/payment_card_model.dart';
 import 'package:e_commerc_app/utils/app_color.dart';
 import 'package:e_commerc_app/utils/app_routes.dart';
-import 'package:e_commerc_app/views/widgets/checkout_headlines_item.dart';
+import 'package:e_commerc_app/utils/responsive_helper.dart';
 import 'package:e_commerc_app/views/widgets/empty_shipping_payment.dart';
 import 'package:e_commerc_app/views/widgets/main_button.dart';
 import 'package:e_commerc_app/views/widgets/payment_method_bottom_sheet_widget.dart';
@@ -16,422 +17,576 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class CheckoutPage extends StatelessWidget {
   const CheckoutPage({super.key});
 
-  Widget _buildPaymentMethodItem(
-    PaymentCardModel? chosenCard,
-    BuildContext context,
-  ) {
-    final checkoutCubit = BlocProvider.of<CheckOutCubit>(context);
-    // final paymentMethodsCubit = BlocProvider.of<PaymentMethodsCubit>(context);
-    BlocProvider.of<PaymentMethodsCubit>(context);
-    if (chosenCard != null) {
-      return PaymentMethodItem(
-        paymentCard: chosenCard,
-
-        onItemTapped: () {
-          showModalBottomSheet(
-            backgroundColor: AppColors.white,
-            elevation: 8,
-
-            context: context,
-            isScrollControlled: true,
-
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-            ),
-            builder: (context) {
-              return BlocProvider(
-                create: (context) =>
-                    PaymentMethodsCubit()..fetchPaymentMethods(),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: MediaQuery.of(context).size.height * 0.55,
-
-                  child: const PaymentMethodBottomSheetWidget(),
-                ),
-              );
-            },
-            isDismissible: true,
-            enableDrag: true,
-          ).then((_) async {
-            // ignore: use_build_context_synchronously
-            await checkoutCubit.getCheckoutContent();
-          });
-        },
-      );
-    } else {
-      return const EmptyShippingPayment(
-        title: 'Add Payment Method',
-        isPayment: true,
-      );
-    }
+  Future<void> _openAddress(BuildContext context, CheckOutCubit cubit) async {
+    await Navigator.of(context).pushNamed(AppRoutes.chooseLocation);
+    if (!context.mounted) return;
+    await cubit.getCheckoutContent();
   }
 
-  Widget _buildShipingItem(
-    LocationItemModel? chosenAdress,
+  Future<void> _openPaymentMethods(
     BuildContext context,
-  ) {
-    if (chosenAdress != null) {
-      final imageWidth = (MediaQuery.sizeOf(context).width * 0.28).clamp(
-        100.0,
-        160.0,
-      );
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(16.0),
-            child: CachedNetworkImage(
-              imageUrl: chosenAdress.imgurl,
-              width: imageWidth.toDouble(),
-              height: imageWidth.toDouble() * 0.72,
-              fit: BoxFit.cover,
-            ),
+    CheckOutCubit checkoutCubit,
+  ) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.white,
+      elevation: 8,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) {
+        return BlocProvider(
+          create: (context) => PaymentMethodsCubit()..fetchPaymentMethods(),
+          child: SizedBox(
+            width: double.infinity,
+            height: MediaQuery.sizeOf(context).height * 0.62,
+            child: const PaymentMethodBottomSheetWidget(),
           ),
-          const SizedBox(width: 15),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  chosenAdress.city,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge!.copyWith(color: AppColors.black),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '${chosenAdress.city}-${chosenAdress.country}',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge!.copyWith(color: AppColors.grey),
-                ),
-              ],
-            ),
+        );
+      },
+    );
+    if (!context.mounted) return;
+    await checkoutCubit.getCheckoutContent();
+  }
+
+  Future<void> _handleProceedToPay(
+    BuildContext context,
+    CheckOutLoaded state,
+    CheckOutCubit cubit,
+  ) async {
+    if (state.cartItems.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Your cart is empty. Add products first.'),
+        ),
+      );
+      return;
+    }
+
+    if (state.chosenAdress == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please add a shipping address first.')),
+      );
+      await _openAddress(context, cubit);
+      return;
+    }
+
+    if (state.choosenpaymentCard == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please choose a payment method first.')),
+      );
+      await _openPaymentMethods(context, cubit);
+      return;
+    }
+
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator.adaptive()),
+    );
+    await Future<void>.delayed(const Duration(milliseconds: 1200));
+    if (!context.mounted) return;
+    Navigator.of(context).pop();
+
+    final goHome = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Payment Successful'),
+        content: Text(
+          'Your order of \$${state.totalAmount.toStringAsFixed(2)} has been placed.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Stay Here'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Go Home'),
           ),
         ],
-      );
-    } else {
-      return const EmptyShippingPayment(
-        title: 'Add shiping address',
-        isPayment: false,
-      );
+      ),
+    );
+
+    if (!context.mounted) return;
+    if (goHome == true) {
+      Navigator.of(
+        context,
+        rootNavigator: true,
+      ).pushNamedAndRemoveUntil(AppRoutes.homeroute, (route) => false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final cubit = BlocProvider.of<CheckOutCubit>(context);
+    final cubit = context.read<CheckOutCubit>();
 
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(
-            'Checkout',
-            style: Theme.of(context).textTheme.titleLarge!.copyWith(
-              color: AppColors.black,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Checkout',
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            color: AppColors.black,
+            fontWeight: FontWeight.w700,
           ),
-          centerTitle: true,
         ),
-
-        // استخدمت body + bottom padding بدل fixed-size button داخل body
-        body: BlocBuilder<CheckOutCubit, CheckOutState>(
-          bloc: cubit,
+        centerTitle: true,
+      ),
+      body: SafeArea(
+        child: BlocBuilder<CheckOutCubit, CheckOutState>(
           buildWhen: (previous, current) =>
-              current is CheckOutLoaded ||
               current is CheckOutLoading ||
+              current is CheckOutLoaded ||
               current is CheckOutError,
           builder: (context, state) {
             if (state is CheckOutLoading) {
               return const Center(child: CircularProgressIndicator.adaptive());
-            } else if (state is CheckOutError) {
+            }
+
+            if (state is CheckOutError) {
               return Center(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Text(
-                    state.message,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                      color: AppColors.black,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.error_outline_rounded,
+                        size: 44,
+                        color: AppColors.red,
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        state.message,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppColors.black2,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      OutlinedButton(
+                        onPressed: () => cubit.getCheckoutContent(),
+                        child: const Text('Retry'),
+                      ),
+                    ],
                   ),
                 ),
               );
-            } else if (state is CheckOutLoaded) {
-              final choosenpaymentCards = state.choosenpaymentCard;
-              final cartItems = state.cartItems;
-              final total = state.totalAmount;
-              final chosenAdress = state.chosenAdress;
+            }
 
-              return SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 12.0,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Address section (تقدر تستبدل بـ AddressPicker اللي اتفقنا عليه)
-                    CheckoutHeadlinesItem(
-                      title: 'Address',
-                      onTap: () {
-                        Navigator.of(context)
-                            .pushNamed(AppRoutes.chooseLocation)
-                            .then((value) => cubit.getCheckoutContent());
-                      },
-                    ),
-                    const SizedBox(height: 12),
+            if (state is! CheckOutLoaded) {
+              return const SizedBox.shrink();
+            }
 
-                    _buildShipingItem(chosenAdress, context),
-                    const SizedBox(height: 16),
-                    CheckoutHeadlinesItem(
-                      title: 'Product',
-                      numOfItems: state.numberOfProducts,
-                    ),
-                    const SizedBox(height: 12),
+            return RefreshIndicator(
+              onRefresh: () => cubit.getCheckoutContent(),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final maxContentWidth = ResponsiveHelper.maxContentWidth(
+                    context,
+                  );
+                  final horizontalPadding = ResponsiveHelper.horizontalPadding(
+                    context,
+                  );
 
-                    // List of cart items
-                    ListView.separated(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: cartItems.length,
-                      separatorBuilder: (_, __) => const Divider(height: 1),
-                      itemBuilder: (context, index) {
-                        final item = cartItems[index];
-                        final itemImageSize =
-                            MediaQuery.sizeOf(context).width < 390
-                            ? 78.0
-                            : 92.0;
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10.0),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              // الصورة
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: DecoratedBox(
-                                  decoration: BoxDecoration(
-                                    color: AppColors.greyshade,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: CachedNetworkImage(
-                                    imageUrl: item.product.imgUrl,
-                                    width: itemImageSize,
-                                    height: itemImageSize,
-                                    fit: BoxFit.cover,
-                                    placeholder: (c, u) => Container(
-                                      width: itemImageSize,
-                                      height: itemImageSize,
-                                      alignment: Alignment.center,
-                                      child: const CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                      ),
-                                    ),
-                                    errorWidget: (c, u, e) => Container(
-                                      width: itemImageSize,
-                                      height: itemImageSize,
-                                      alignment: Alignment.center,
-                                      color: AppColors.greyshade,
-                                      child: const Icon(
-                                        Icons.error,
-                                        color: Colors.red,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-
-                              const SizedBox(width: 12),
-
-                              // اسم المنتج + details
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item.product.name,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleSmall
-                                          ?.copyWith(
-                                            color: AppColors.black,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                    ),
-                                    const SizedBox(height: 8),
-
-                                    Row(
-                                      children: [
-                                        Flexible(
-                                          child: Text.rich(
-                                            TextSpan(
-                                              text: 'Size: ',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyMedium
-                                                  ?.copyWith(
-                                                    color: AppColors.black2,
-                                                    fontSize: 14,
-                                                  ),
-                                              children: [
-                                                TextSpan(
-                                                  text: item.size
-                                                      .toString()
-                                                      .split('.')
-                                                      .last
-                                                      .toUpperCase(),
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .bodyMedium
-                                                      ?.copyWith(
-                                                        color: AppColors.black,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                      ),
-                                                ),
-                                              ],
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                        const Spacer(),
-                                        Text(
-                                          '\$${item.product.price.toStringAsFixed(2)}',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleLarge
-                                              ?.copyWith(
-                                                color: AppColors.black,
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                    //
-                                    const SizedBox(height: 12),
-                                    Text.rich(
-                                      TextSpan(
-                                        text: 'Quantity: ',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium
-                                            ?.copyWith(
-                                              color: AppColors.black2,
-                                              fontSize: 14,
-                                            ),
-                                        children: [
-                                          TextSpan(
-                                            text: item.quantity.toString(),
-
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyMedium
-                                                ?.copyWith(
-                                                  color: AppColors.black,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                          ),
-                                        ],
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-
-                    const Divider(height: 1),
-                    const SizedBox(height: 20),
-
-                    // Payment method headline
-                    Text(
-                      ' Payment Method',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.grey,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-
-                    // Total container
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 14,
-                      ),
-                      decoration: BoxDecoration(
-                        // ignore: deprecated_member_use
-                        color: AppColors.greyshade.withOpacity(0.08),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  return Align(
+                    alignment: Alignment.topCenter,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: maxContentWidth),
+                      child: ListView(
+                        padding: EdgeInsets.fromLTRB(
+                          horizontalPadding,
+                          16,
+                          horizontalPadding,
+                          140,
+                        ),
+                        physics: const AlwaysScrollableScrollPhysics(),
                         children: [
-                          Text(
-                            'Total',
-                            style: Theme.of(context).textTheme.titleLarge
-                                ?.copyWith(color: AppColors.grey, fontSize: 16),
+                          _CheckoutHeaderCard(
+                            totalAmount: state.totalAmount,
+                            itemCount: state.numberOfProducts,
                           ),
-                          Text(
-                            '\$${total.toStringAsFixed(2)}',
-                            style: Theme.of(context).textTheme.titleLarge
-                                ?.copyWith(
-                                  color: AppColors.black,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                          const SizedBox(height: 16),
+                          _SectionTitle(
+                            title: 'Shipping Address',
+                            actionText: 'Edit',
+                            onActionTap: () => _openAddress(context, cubit),
                           ),
+                          const SizedBox(height: 10),
+                          _AddressSection(
+                            address: state.chosenAdress,
+                            onAddAddress: () => _openAddress(context, cubit),
+                          ),
+                          const SizedBox(height: 16),
+                          _SectionTitle(
+                            title: 'Products (${state.numberOfProducts})',
+                          ),
+                          const SizedBox(height: 10),
+                          ...state.cartItems.map(_CheckoutProductItem.new),
+                          const SizedBox(height: 16),
+                          const _SectionTitle(title: 'Payment Method'),
+                          const SizedBox(height: 10),
+                          _PaymentSection(
+                            chosenCard: state.choosenpaymentCard,
+                            onChoosePayment: () =>
+                                _openPaymentMethods(context, cubit),
+                          ),
+                          const SizedBox(height: 16),
+                          _SummaryCard(totalAmount: state.totalAmount),
                         ],
                       ),
                     ),
-
-                    const SizedBox(height: 20),
-
-                    // const EmptyShippingPayment(title: 'Add Payment Method'),
-                    _buildPaymentMethodItem(choosenpaymentCards, context),
-                    // const SizedBox(height: 16),
-
-                    // const SizedBox(height: 20),
-
-                    // spacer bottom so scroll doesn't hide last content under button
-                    const SizedBox(height: kToolbarHeight + 20),
-                  ],
-                ),
-              );
-            } else {
-              return const Center(child: Text('Something went wrong!'));
-            }
+                  );
+                },
+              ),
+            );
           },
         ),
+      ),
+      bottomNavigationBar: BlocBuilder<CheckOutCubit, CheckOutState>(
+        buildWhen: (previous, current) =>
+            current is CheckOutLoading ||
+            current is CheckOutLoaded ||
+            current is CheckOutError,
+        builder: (context, state) {
+          final loadedState = state is CheckOutLoaded ? state : null;
+          return Padding(
+            padding: EdgeInsets.fromLTRB(
+              16,
+              8,
+              16,
+              MediaQuery.viewPaddingOf(context).bottom + 12,
+            ),
+            child: MainButton(
+              text: loadedState == null
+                  ? 'Proceed to Pay'
+                  : 'Proceed to Pay \$${loadedState.totalAmount.toStringAsFixed(2)}',
+              isLoading: state is CheckOutLoading,
+              onTap: loadedState == null
+                  ? null
+                  : () => _handleProceedToPay(context, loadedState, cubit),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
 
-        bottomNavigationBar: Padding(
-          padding: EdgeInsets.fromLTRB(
-            16,
-            10,
-            16,
-            MediaQuery.of(context).viewPadding.bottom + 12,
-          ),
-          child: MainButton(text: 'Proceed to Pay', onTap: () {}),
+class _CheckoutHeaderCard extends StatelessWidget {
+  final double totalAmount;
+  final int itemCount;
+
+  const _CheckoutHeaderCard({
+    required this.totalAmount,
+    required this.itemCount,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(22),
+        gradient: const LinearGradient(
+          colors: [Color(0xFF6039D8), Color(0xFF8E62FF)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
       ),
+      child: Row(
+        children: [
+          Container(
+            height: 50,
+            width: 50,
+            decoration: BoxDecoration(
+              color: AppColors.white.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Icon(
+              Icons.shopping_bag_outlined,
+              color: AppColors.white,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Order Overview',
+                  style: TextStyle(
+                    color: AppColors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '$itemCount item(s)',
+                  style: TextStyle(
+                    color: AppColors.white.withValues(alpha: 0.8),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            '\$${totalAmount.toStringAsFixed(2)}',
+            style: const TextStyle(
+              color: AppColors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SectionTitle extends StatelessWidget {
+  final String title;
+  final String? actionText;
+  final VoidCallback? onActionTap;
+
+  const _SectionTitle({required this.title, this.actionText, this.onActionTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            title,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: AppColors.black,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+        if (actionText != null && onActionTap != null)
+          TextButton(onPressed: onActionTap, child: Text(actionText!)),
+      ],
+    );
+  }
+}
+
+class _AddressSection extends StatelessWidget {
+  final LocationItemModel? address;
+  final VoidCallback onAddAddress;
+
+  const _AddressSection({required this.address, required this.onAddAddress});
+
+  @override
+  Widget build(BuildContext context) {
+    if (address == null) {
+      return const EmptyShippingPayment(
+        title: 'Add shipping address',
+        isPayment: false,
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.grey5),
+      ),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: CachedNetworkImage(
+              imageUrl: address!.imgurl,
+              width: 80,
+              height: 80,
+              fit: BoxFit.cover,
+              errorWidget: (context, url, error) =>
+                  const Icon(Icons.location_city_outlined),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  address!.city,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${address!.city}, ${address!.country}',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: AppColors.black2),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            onPressed: onAddAddress,
+            icon: const Icon(Icons.edit_location_alt_outlined),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CheckoutProductItem extends StatelessWidget {
+  final AddToCartModel cartItem;
+
+  const _CheckoutProductItem(this.cartItem);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.grey5),
+      ),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: CachedNetworkImage(
+              imageUrl: cartItem.product.imgUrl,
+              width: 74,
+              height: 74,
+              fit: BoxFit.cover,
+              errorWidget: (context, url, error) =>
+                  const Icon(Icons.image_not_supported_outlined),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  cartItem.product.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.black,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Size ${cartItem.size.name.toUpperCase()} • Qty ${cartItem.quantity}',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: AppColors.black2),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            '\$${cartItem.totalPrice.toStringAsFixed(2)}',
+            style: Theme.of(
+              context,
+            ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PaymentSection extends StatelessWidget {
+  final PaymentCardModel? chosenCard;
+  final VoidCallback onChoosePayment;
+
+  const _PaymentSection({
+    required this.chosenCard,
+    required this.onChoosePayment,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (chosenCard == null) {
+      return const EmptyShippingPayment(
+        title: 'Add payment method',
+        isPayment: true,
+      );
+    }
+
+    return PaymentMethodItem(
+      paymentCard: chosenCard!,
+      onItemTapped: onChoosePayment,
+    );
+  }
+}
+
+class _SummaryCard extends StatelessWidget {
+  final double totalAmount;
+
+  const _SummaryCard({required this.totalAmount});
+
+  @override
+  Widget build(BuildContext context) {
+    final shipping = totalAmount > 0 ? 10.0 : 0.0;
+    final subTotal = totalAmount - shipping;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.grey5),
+      ),
+      child: Column(
+        children: [
+          _SummaryRow(label: 'Subtotal', value: subTotal),
+          const SizedBox(height: 8),
+          _SummaryRow(label: 'Shipping', value: shipping),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Divider(height: 1, color: AppColors.grey5),
+          ),
+          _SummaryRow(label: 'Total', value: totalAmount, isTotal: true),
+        ],
+      ),
+    );
+  }
+}
+
+class _SummaryRow extends StatelessWidget {
+  final String label;
+  final double value;
+  final bool isTotal;
+
+  const _SummaryRow({
+    required this.label,
+    required this.value,
+    this.isTotal = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).textTheme.titleMedium?.copyWith(
+      color: isTotal ? AppColors.black : AppColors.black2,
+      fontWeight: isTotal ? FontWeight.w700 : FontWeight.w500,
+    );
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: style),
+        Text('\$${value.toStringAsFixed(2)}', style: style),
+      ],
     );
   }
 }

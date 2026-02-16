@@ -13,6 +13,33 @@ class HomeCubit extends Cubit<HomeState> {
   final authServices = AuthServicesImpl();
   final homeServices = HomeServicesImpl();
   final favoriteServices = FavoriteServicesImpl();
+
+  List<ProductItemModel> _allProducts = const <ProductItemModel>[];
+  List<HomeCarouselItemModel> _carouselItems = const <HomeCarouselItemModel>[];
+  String _searchQuery = '';
+
+  List<ProductItemModel> get allProducts =>
+      List<ProductItemModel>.unmodifiable(_allProducts);
+  String get searchQuery => _searchQuery;
+
+  ProductItemModel? findProductById(String productId) {
+    for (final product in _allProducts) {
+      if (product.id == productId) {
+        return product;
+      }
+    }
+    return null;
+  }
+
+  bool isProductFavorite(String productId) {
+    for (final product in _allProducts) {
+      if (product.id == productId) {
+        return product.isFavorite;
+      }
+    }
+    return false;
+  }
+
   Future<void> getHomeData() async {
     final shouldShowLoading = state is! HomeLoaded;
     if (shouldShowLoading) {
@@ -31,18 +58,26 @@ class HomeCubit extends Cubit<HomeState> {
       final homeCarouselItems = await homeCarouselFuture;
       final favoritesProducts = await favoritesFuture;
 
-      final List<ProductItemModel> finalProducts = products.map((product) {
+      _allProducts = products.map((product) {
         final isFavorite = favoritesProducts.any(
           (item) => item.id == product.id,
         );
         return product.copyWith(isFavorite: isFavorite);
       }).toList();
+      _carouselItems = homeCarouselItems;
 
-      emit(
-        HomeLoaded(carouselItems: homeCarouselItems, products: finalProducts),
-      );
+      _emitHomeLoaded();
     } catch (e) {
       emit(HomeError(message: e.toString()));
+    }
+  }
+
+  void setSearchQuery(String query) {
+    final sanitized = query.trim();
+    if (sanitized == _searchQuery) return;
+    _searchQuery = sanitized;
+    if (state is HomeLoaded) {
+      _emitHomeLoaded();
     }
   }
 
@@ -60,18 +95,70 @@ class HomeCubit extends Cubit<HomeState> {
         );
         return;
       }
-      final userId = currentUser.uid;
-      final favoriteProducts = await favoriteServices.getFavorites(userId);
-      final isFavorite = favoriteProducts.any((item) => item.id == product.id);
+
+      final productIndex = _allProducts.indexWhere(
+        (item) => item.id == product.id,
+      );
+      bool isFavorite = productIndex != -1
+          ? _allProducts[productIndex].isFavorite
+          : false;
+
+      if (productIndex == -1) {
+        final favoriteProducts = await favoriteServices.getFavorites(
+          currentUser.uid,
+        );
+        isFavorite = favoriteProducts.any((item) => item.id == product.id);
+      }
+
       if (isFavorite) {
-        await favoriteServices.removeFavorite(userId, product.id);
+        await favoriteServices.removeFavorite(currentUser.uid, product.id);
       } else {
-        await favoriteServices.addFavorite(userId, product);
+        await favoriteServices.addFavorite(currentUser.uid, product);
+      }
+
+      final updatedProduct = product.copyWith(isFavorite: !isFavorite);
+      if (productIndex != -1) {
+        final updatedProducts = List<ProductItemModel>.from(_allProducts);
+        updatedProducts[productIndex] = updatedProduct;
+        _allProducts = updatedProducts;
+      } else {
+        _allProducts = <ProductItemModel>[..._allProducts, updatedProduct];
       }
 
       emit(SetFavoriteSuccess(isFavorite: !isFavorite, productId: product.id));
+      _emitHomeLoaded();
     } catch (e) {
       emit(SetFavoriteError(message: e.toString(), productId: product.id));
+      if (_allProducts.isNotEmpty) {
+        _emitHomeLoaded();
+      }
     }
+  }
+
+  void _emitHomeLoaded() {
+    emit(
+      HomeLoaded(
+        carouselItems: _carouselItems,
+        products: _filteredProducts(_allProducts),
+        searchQuery: _searchQuery,
+      ),
+    );
+  }
+
+  List<ProductItemModel> _filteredProducts(List<ProductItemModel> source) {
+    final normalizedQuery = _searchQuery.toLowerCase();
+    if (normalizedQuery.isEmpty) return source;
+
+    return source.where((product) {
+      final nameWords = product.name.toLowerCase().split(' ');
+      final categoryWords = product.category.toLowerCase().split(' ');
+      final matchesName = nameWords.any(
+        (word) => word.startsWith(normalizedQuery),
+      );
+      final matchesCategory = categoryWords.any(
+        (word) => word.startsWith(normalizedQuery),
+      );
+      return matchesName || matchesCategory;
+    }).toList();
   }
 }

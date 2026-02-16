@@ -43,11 +43,11 @@ class LocationItemModel {
 
   factory LocationItemModel.fromMap(Map<String, dynamic> map) {
     return LocationItemModel(
-      id: map['id'] as String,
-      imgurl: map['imgurl'] as String,
-      city: map['city'] as String,
-      country: map['country'] as String,
-      isChoosen: map['isChoosen'] as bool,
+      id: (map['id'] as String?) ?? '',
+      imgurl: (map['imgurl'] as String?) ?? '',
+      city: (map['city'] as String?) ?? '',
+      country: (map['country'] as String?) ?? '',
+      isChoosen: (map['isChoosen'] as bool?) ?? false,
     );
   }
 }

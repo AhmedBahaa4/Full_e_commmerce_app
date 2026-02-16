@@ -40,6 +40,7 @@ class CheckOutCubit extends Cubit<CheckOutState> {
         0,
         (previousValue, element) => previousValue + element.quantity,
       );
+      final shippingFee = cartItems.isEmpty ? 0.0 : 10.0;
 
       final chosenPaymentCards = await checkOutServices.fetchPaymentMethods(
         currentUser.uid,
@@ -53,7 +54,7 @@ class CheckOutCubit extends Cubit<CheckOutState> {
       emit(
         CheckOutLoaded(
           cartItems: cartItems,
-          totalAmount: subtotal + 10,
+          totalAmount: subtotal + shippingFee,
           numberOfProducts: numberOfProducts,
           choosenpaymentCard: chosenPaymentCards.isNotEmpty
               ? chosenPaymentCards.first

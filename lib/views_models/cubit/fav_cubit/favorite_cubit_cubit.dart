@@ -9,19 +9,26 @@ class FavoriteCubit extends Cubit<FavoriteCubitState> {
   FavoriteCubit() : super(FavoriteCubitInitial());
   final favoriteServices = FavoriteServicesImpl();
   final authServices = AuthServicesImpl();
+  List<ProductItemModel> _favoriteProducts = const <ProductItemModel>[];
+  List<ProductItemModel> get favoriteProducts =>
+      List<ProductItemModel>.unmodifiable(_favoriteProducts);
 
-  Future<void> getFavoriteProducts() async {
-    emit(FavoriteLoading());
+  Future<void> getFavoriteProducts({bool showLoading = true}) async {
+    if (showLoading || state is! FavoriteLoaded) {
+      emit(FavoriteLoading());
+    }
 
     try {
       final currentUser = authServices.currentUser();
       if (currentUser == null) {
-        emit(FavoriteLoaded(favoriteProducts: const <ProductItemModel>[]));
+        _favoriteProducts = const <ProductItemModel>[];
+        emit(FavoriteLoaded(favoriteProducts: favoriteProducts));
         return;
       }
-      final favoriteProducts = await favoriteServices.getFavorites(
+      final fetchedFavorites = await favoriteServices.getFavorites(
         currentUser.uid,
       );
+      _favoriteProducts = fetchedFavorites;
       emit(FavoriteLoaded(favoriteProducts: favoriteProducts));
     } catch (e) {
       emit(FavoriteError(message: e.toString()));
@@ -39,9 +46,9 @@ class FavoriteCubit extends Cubit<FavoriteCubitState> {
       await favoriteServices.removeFavorite(currentUser.uid, productId);
 
       emit(FavoriteRmoved(productId: productId));
-      final favoriteProducts = await favoriteServices.getFavorites(
-        currentUser.uid,
-      );
+      _favoriteProducts = _favoriteProducts
+          .where((product) => product.id != productId)
+          .toList();
       emit(FavoriteLoaded(favoriteProducts: favoriteProducts));
     } catch (e) {
       emit(FavoriteRmovevEror(message: e.toString()));

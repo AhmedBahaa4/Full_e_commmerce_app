@@ -22,19 +22,25 @@ class PaymentMethodsCubit extends Cubit<PaymentMethodsState> {
   ) async {
     emit(AddNewCardLoading());
     try {
-      final newcard = PaymentCardModel(
-        cardNumber: cardNumber,
-        expiryDate: expiryDate,
-        cvv: cvv,
-        cardHolderName: cardHolderName,
-
-        id: DateTime.now().toIso8601String(),
-      );
       final currentUser = authservices.currentUser();
       if (currentUser == null) {
         emit(AddNewCardFailure('You need to login first'));
         return;
       }
+
+      final chosenCards = await checkOutServices.fetchPaymentMethods(
+        currentUser.uid,
+        true,
+      );
+      final newcard = PaymentCardModel(
+        cardNumber: cardNumber,
+        expiryDate: expiryDate,
+        cvv: cvv,
+        cardHolderName: cardHolderName,
+        id: DateTime.now().toIso8601String(),
+        ischoosen: chosenCards.isEmpty,
+      );
+
       await checkOutServices.setCard(newcard, currentUser.uid);
 
       emit(AddNewCardSuccess());

@@ -9,6 +9,9 @@ class ChooseLocationCubit extends Cubit<ChooseLocationState> {
   ChooseLocationCubit() : super(ChooseLocationInitial());
   final locationservices = LocationServicesImpl();
   final authservices = AuthServicesImpl();
+  List<LocationItemModel> _locations = const <LocationItemModel>[];
+  List<LocationItemModel> get locations =>
+      List<LocationItemModel>.unmodifiable(_locations);
   String? selectedLocationId;
   LocationItemModel? selectedLocation;
 
@@ -18,11 +21,13 @@ class ChooseLocationCubit extends Cubit<ChooseLocationState> {
     try {
       final currentuser = authservices.currentUser();
       if (currentuser == null) {
+        _locations = const <LocationItemModel>[];
         emit(FetchedLocations(locations: const <LocationItemModel>[]));
         return;
       }
 
       final locations = await locationservices.fetchLocations(currentuser.uid);
+      _locations = locations;
       if (locations.isEmpty) {
         selectedLocationId = null;
         selectedLocation = null;
@@ -57,25 +62,38 @@ class ChooseLocationCubit extends Cubit<ChooseLocationState> {
       if (splittedTLocations.length < 2 ||
           splittedTLocations[0].isEmpty ||
           splittedTLocations[1].isEmpty) {
-        emit(FetchLocationsFailur(errorMessage: 'Use format: city - country'));
+        emit(LocationAddedFailur(errorMessage: 'Use format: city - country'));
         return;
       }
+      final currentUser = authservices.currentUser();
+      if (currentUser == null) {
+        emit(LocationAddedFailur(errorMessage: 'You need to login first'));
+        return;
+      }
+
+      final chosenLocations = await locationservices.fetchLocations(
+        currentUser.uid,
+        isChoosen: true,
+      );
       final locationItem = LocationItemModel(
         id: DateTime.now().toIso8601String(),
         city: splittedTLocations[0],
         country: splittedTLocations[1],
+        isChoosen: chosenLocations.isEmpty,
       );
-      final currentUser = authservices.currentUser();
-      if (currentUser == null) {
-        emit(FetchLocationsFailur(errorMessage: 'You need to login first'));
-        return;
-      }
+
       await locationservices.setLocation(locationItem, currentUser.uid);
+
+      selectedLocationId = locationItem.id;
+      selectedLocation = locationItem;
       emit(LocationAdded());
+
       final locations = await locationservices.fetchLocations(currentUser.uid);
+      _locations = locations;
       emit(FetchedLocations(locations: locations));
+      emit(LocationShosen(location: locationItem));
     } catch (e) {
-      emit(FetchLocationsFailur(errorMessage: e.toString()));
+      emit(LocationAddedFailur(errorMessage: e.toString()));
     }
   }
 
@@ -115,6 +133,11 @@ class ChooseLocationCubit extends Cubit<ChooseLocationState> {
         return;
       }
 
+      if (selectedLocation!.isChoosen) {
+        emit(ConfirmedLocationLoaded());
+        return;
+      }
+
       var previousChosenLocation = (await locationservices.fetchLocations(
         currentuser.uid,
         isChoosen: true,
@@ -128,6 +151,15 @@ class ChooseLocationCubit extends Cubit<ChooseLocationState> {
       selectedLocation = selectedLocation!.copyWith(isChoosen: true);
 
       await locationservices.setLocation(selectedLocation!, currentuser.uid);
+      _locations = _locations.map((location) {
+        if (location.id == selectedLocation!.id) {
+          return selectedLocation!;
+        }
+        if (location.isChoosen) {
+          return location.copyWith(isChoosen: false);
+        }
+        return location;
+      }).toList();
 
       emit(ConfirmedLocationLoaded());
     } catch (e) {

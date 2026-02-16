@@ -7,6 +7,7 @@ class LocationItemWidget extends StatelessWidget {
   final Color borderColor;
   final VoidCallback onTap;
   final LocationItemModel location;
+
   const LocationItemWidget({
     super.key,
     this.borderColor = AppColors.grey,
@@ -16,119 +17,68 @@ class LocationItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isSelected = borderColor == AppColors.primary;
+
     return InkWell(
       onTap: onTap,
-      child: DecoratedBox(
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
         decoration: BoxDecoration(
-          border: Border.all(color: borderColor),
+          color: isSelected
+              ? AppColors.primary.withValues(alpha: 0.08)
+              : AppColors.white,
+          border: Border.all(
+            color: isSelected ? AppColors.primary : AppColors.grey5,
+            width: isSelected ? 1.6 : 1,
+          ),
           borderRadius: BorderRadius.circular(16),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
+        padding: const EdgeInsets.all(10),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: CachedNetworkImage(
+                imageUrl: location.imgurl,
+                width: 64,
+                height: 64,
+                fit: BoxFit.cover,
+                errorWidget: (context, url, error) =>
+                    const Icon(Icons.location_city_outlined),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     location.city,
-                    style: Theme.of(context).textTheme.titleMedium,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: AppColors.black,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
+                  const SizedBox(height: 4),
                   Text(
                     '${location.city}, ${location.country}',
                     style: Theme.of(
                       context,
-                    ).textTheme.titleSmall!.copyWith(color: AppColors.grey),
+                    ).textTheme.bodySmall?.copyWith(color: AppColors.black2),
                   ),
                 ],
               ),
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  CircleAvatar(radius: 55, backgroundColor: borderColor),
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundImage: CachedNetworkImageProvider(
-                      location.imgurl,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+            ),
+            Icon(
+              isSelected
+                  ? Icons.check_circle_rounded
+                  : Icons.radio_button_unchecked_rounded,
+              color: isSelected ? AppColors.primary : AppColors.grey4,
+              size: 22,
+            ),
+          ],
         ),
       ),
     );
   }
 }
-
-/* Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: AppColors.grey),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: BlocListener<ChooseLocationCubit, ChooseLocationState>(
-                            bloc: cubit,
-                            listenWhen: (previous, current) =>
-                                current is LocationShosen,
-                            listener: (context, state) {
-                              if (state is LocationShosen) {
-                                final selectedLocation = state.location;
-                                // show snackbar only for the item that was selected
-                                if (selectedLocation.id == location.id) {
-                                  // ScaffoldMessenger.of(context).showSnackBar(
-                                  //   SnackBar(
-                                  //     content: Text(
-                                  //       'Location selected: ${state.location.city}, ${state.location.country}',
-                                  //     ),
-                                  //     closeIconColor: AppColors.primary,
-                                  //   ),
-                                  // );
-                                  
-                                }
-                              }
-                            },
-                            child: InkWell(
-                              onTap: () {
-                                cubit.selectLocation(location.id);
-                              },
-                              child: ListTile(
-                                leading: ClipRRect(
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: CachedNetworkImage(
-                                    imageUrl: location.imgurl,
-                                    width: 70,
-                                    height: 70,
-                                    fit: BoxFit.cover,
-                                    placeholder: (context, url) => const Center(
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                      ),
-                                    ),
-                                    errorWidget: (context, url, error) =>
-                                        const Icon(
-                                          Icons.error,
-                                          color: Colors.red,
-                                        ),
-                                  ),
-                                ),
-                                title: Text(
-                                  location.city,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                subtitle: Text(
-                                  '${location.city}, ${location.country}',
-                                  style: const TextStyle(color: AppColors.grey),
-                                ),
-                                trailing: const Icon(
-                                  Icons.location_pin,
-                                  color: AppColors.primary,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ); */

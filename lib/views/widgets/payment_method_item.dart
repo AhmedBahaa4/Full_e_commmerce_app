@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:e_commerc_app/models/payment_card_model.dart';
 import 'package:e_commerc_app/utils/app_color.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +5,7 @@ import 'package:flutter/material.dart';
 class PaymentMethodItem extends StatelessWidget {
   final PaymentCardModel paymentCard;
   final VoidCallback onItemTapped;
+
   const PaymentMethodItem({
     super.key,
     required this.paymentCard,
@@ -14,38 +14,59 @@ class PaymentMethodItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cardNumber = paymentCard.cardNumber.trim();
+    final suffix = cardNumber.length >= 4
+        ? cardNumber.substring(cardNumber.length - 4)
+        : cardNumber;
+
     return InkWell(
+      borderRadius: BorderRadius.circular(18),
       onTap: onItemTapped,
-      child: DecoratedBox(
+      child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(18),
           color: AppColors.white,
-          border: Border.all(color: AppColors.grey3),
+          border: Border.all(color: AppColors.grey5),
         ),
-        child: ListTile(
-          leading: CachedNetworkImage(
-            imageUrl:
-                'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/250px-Mastercard-logo.svg.png',
-            width: 70,
-            height: 60,
-            fit: BoxFit.cover,
-            placeholder: (context, url) =>
-                const Center(child: CircularProgressIndicator()),
-            errorWidget: (context, url, error) =>
-                const Icon(Icons.error, color: Colors.red, size: 40),
-          ),
-          title: const Text(
-            'MasterCard',
-            style: TextStyle(
-              color: AppColors.black,
-              fontWeight: FontWeight.bold,
+        padding: const EdgeInsets.all(14),
+        child: Row(
+          children: [
+            Container(
+              height: 42,
+              width: 42,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.credit_card_rounded,
+                color: AppColors.primary,
+              ),
             ),
-          ),
-          subtitle: Text(
-            '**** **** **** ${paymentCard.cardNumber.substring(paymentCard.cardNumber.length - 4)}',
-            style: const TextStyle(color: AppColors.grey),
-          ),
-          trailing: const Icon(Icons.chevron_right, color: AppColors.primary),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    paymentCard.cardHolderName,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: AppColors.black,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '**** **** **** $suffix',
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: AppColors.black2),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right_rounded, color: AppColors.primary),
+          ],
         ),
       ),
     );

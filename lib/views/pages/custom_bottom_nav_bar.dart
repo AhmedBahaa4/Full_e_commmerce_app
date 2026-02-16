@@ -203,6 +203,10 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
           });
           if (index == 1) {
             context.read<CartCubit>().getCartItems(showLoading: false);
+          } else if (index == 2) {
+            context.read<FavoriteCubit>().getFavoriteProducts(
+              showLoading: false,
+            );
           }
         },
         navBarBuilder: (NavBarConfig p1) {

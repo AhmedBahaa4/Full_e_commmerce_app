@@ -5,6 +5,8 @@ import 'package:e_commerc_app/models/product_item_model.dart';
 import 'package:e_commerc_app/utils/app_color.dart';
 import 'package:e_commerc_app/views/widgets/product_couner_widget.dart';
 import 'package:e_commerc_app/views_models/cubit/cart_cubit/cart_cubit.dart';
+import 'package:e_commerc_app/views_models/cubit/fav_cubit/favorite_cubit_cubit.dart';
+import 'package:e_commerc_app/views_models/cubit/home_cubit/home_cubit.dart';
 import 'package:e_commerc_app/views_models/cubit/prodcut_details_page/product_deails_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -78,15 +80,7 @@ class ProductDetailsPage extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                actions: [
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.favorite_border_outlined,
-                      color: AppColors.black,
-                    ),
-                  ),
-                ],
+                actions: [_FavoriteAppBarButton(product: product)],
               ),
               SliverToBoxAdapter(
                 child: Padding(
@@ -350,6 +344,58 @@ class _NameAndRate extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _FavoriteAppBarButton extends StatelessWidget {
+  final ProductItemModel product;
+
+  const _FavoriteAppBarButton({required this.product});
+
+  @override
+  Widget build(BuildContext context) {
+    final homeCubit = context.read<HomeCubit>();
+
+    return BlocBuilder<HomeCubit, HomeState>(
+      buildWhen: (previous, current) =>
+          (current is SetFavoriteLoading && current.productId == product.id) ||
+          (current is SetFavoriteSuccess && current.productId == product.id) ||
+          (current is SetFavoriteError && current.productId == product.id) ||
+          current is HomeLoaded,
+      builder: (context, state) {
+        final isLoading =
+            state is SetFavoriteLoading && state.productId == product.id;
+        final isFavorite =
+            homeCubit.findProductById(product.id)?.isFavorite ??
+            product.isFavorite;
+
+        return IconButton(
+          onPressed: isLoading
+              ? null
+              : () async {
+                  final sourceProduct =
+                      homeCubit.findProductById(product.id) ?? product;
+                  await homeCubit.setFevorite(sourceProduct);
+                  if (!context.mounted) return;
+                  await context.read<FavoriteCubit>().getFavoriteProducts(
+                    showLoading: false,
+                  );
+                },
+          icon: isLoading
+              ? const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Icon(
+                  isFavorite
+                      ? Icons.favorite_rounded
+                      : Icons.favorite_border_outlined,
+                  color: isFavorite ? AppColors.red : AppColors.black,
+                ),
+        );
+      },
     );
   }
 }
