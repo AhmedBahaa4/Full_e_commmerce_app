@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:e_commerc_app/models/user_data.dart';
 import 'package:e_commerc_app/services/auth_services.dart';
 import 'package:e_commerc_app/services/firestore_services.dart';
@@ -45,8 +47,8 @@ class AuthCubit extends Cubit<AuthState> {
       );
 
       if (result) {
-        await _saveUserData(email, username);
         emit(AuthDone());
+        unawaited(_saveUserData(email, username).catchError((_) {}));
       } else {
         emit(AuthError(message: 'Register failed'));
       }

@@ -1,4 +1,5 @@
 import 'package:e_commerc_app/models/category_model.dart';
+import 'package:e_commerc_app/utils/app_routes.dart';
 import 'package:e_commerc_app/views_models/cubit/category_cubit/cubit/category_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,7 +11,6 @@ class CategoryTabView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => CategoryCubit()..getCategories(),
-
       child: BlocBuilder<CategoryCubit, CategoryState>(
         builder: (context, state) {
           if (state is CategoryLoading) {
@@ -20,16 +20,19 @@ class CategoryTabView extends StatelessWidget {
               itemCount: state.categories.length,
               itemBuilder: (BuildContext context, int index) {
                 final category = state.categories[index];
-                final isEven = index % 2 == 0; // نحدد الزوجي والفردي
+                final isEven = index % 2 == 0;
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(
-                    vertical: 16,
-                    horizontal: 16,
+                    vertical: 12,
+                    horizontal: 12,
                   ),
                   child: InkWell(
                     onTap: () {
-                      // هنا تقدر تفتح صفحة تفاصيل الكاتيجوري مثلا
+                      Navigator.of(context, rootNavigator: true).pushNamed(
+                        AppRoutes.categoryProductsRoute,
+                        arguments: category,
+                      );
                     },
                     child: DecoratedBox(
                       decoration: BoxDecoration(
@@ -37,21 +40,36 @@ class CategoryTabView extends StatelessWidget {
                         color: category.bgColor,
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.all(16),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: isEven
                               ? [
-                                  // النصوص الأول (شمال)
-                                  _buildTextSection(context, category),
-                                  // الصورة يمين
-                                  _buildImageSection(category),
+                                  Expanded(
+                                    flex: 3,
+                                    child: _buildTextSection(context, category),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Flexible(
+                                    flex: 2,
+                                    child: _buildImageSection(
+                                      context,
+                                      category,
+                                    ),
+                                  ),
                                 ]
                               : [
-                                  // الصورة الأول (شمال)
-                                  _buildImageSection(category),
-                                  // النصوص يمين
-                                  _buildTextSection(context, category),
+                                  Flexible(
+                                    flex: 2,
+                                    child: _buildImageSection(
+                                      context,
+                                      category,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    flex: 3,
+                                    child: _buildTextSection(context, category),
+                                  ),
                                 ],
                         ),
                       ),
@@ -74,7 +92,9 @@ class CategoryTabView extends StatelessWidget {
       children: [
         Text(
           category.name,
-          style: Theme.of(context).textTheme.titleLarge!.copyWith(
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontSize: 20,
             fontWeight: FontWeight.w800,
             color: category.textcolor,
@@ -83,8 +103,10 @@ class CategoryTabView extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           '${category.productsCount} Products',
-          style: Theme.of(context).textTheme.titleMedium!.copyWith(
-            fontSize: 18,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontSize: 16,
             fontWeight: FontWeight.w500,
             color: category.textcolor,
           ),
@@ -93,19 +115,31 @@ class CategoryTabView extends StatelessWidget {
     );
   }
 
-  Widget _buildImageSection(CategoryModel category) {
+  Widget _buildImageSection(BuildContext context, CategoryModel category) {
     if (category.imageUrl != null) {
+      final imageWidth = (MediaQuery.sizeOf(context).width * 0.24).clamp(
+        90.0,
+        140.0,
+      );
+      final imagePath = category.imageUrl!;
+      final imageWidget = imagePath.startsWith('http')
+          ? Image.network(
+              imagePath,
+              width: imageWidth.toDouble(),
+              height: imageWidth.toDouble() * 0.8,
+              fit: BoxFit.cover,
+            )
+          : Image.asset(
+              imagePath,
+              width: imageWidth.toDouble(),
+              height: imageWidth.toDouble() * 0.8,
+              fit: BoxFit.cover,
+            );
       return ClipRRect(
         borderRadius: BorderRadius.circular(16),
-        child: Image.asset(
-          category.imageUrl!,
-          width: 125,
-          height: 100,
-          fit: BoxFit.cover,
-        ),
+        child: imageWidget,
       );
-    } else {
-      return const SizedBox.shrink();
     }
+    return const SizedBox.shrink();
   }
 }

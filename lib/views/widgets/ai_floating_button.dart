@@ -10,7 +10,21 @@ class AiFloatingButton extends StatefulWidget {
 }
 
 class _AiFloatingButtonState extends State<AiFloatingButton> {
-  Offset position = const Offset(300, 500);
+  Offset position = Offset.zero;
+  bool _initialized = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_initialized) return;
+
+    final size = MediaQuery.sizeOf(context);
+    position = Offset(
+      size.width - 72,
+      (size.height * 0.72).clamp(120.0, size.height - 100),
+    );
+    _initialized = true;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,8 +35,21 @@ class _AiFloatingButtonState extends State<AiFloatingButton> {
         feedback: aiButton(),
         childWhenDragging: const SizedBox(),
         onDragEnd: (details) {
+          final parentBox = context.findRenderObject() as RenderBox?;
+          final localOffset = parentBox != null
+              ? parentBox.globalToLocal(details.offset)
+              : details.offset;
+          final maxX =
+              (parentBox?.size.width ?? MediaQuery.sizeOf(context).width) - 64;
+          final maxY =
+              (parentBox?.size.height ?? MediaQuery.sizeOf(context).height) -
+              64;
+
           setState(() {
-            position = details.offset;
+            position = Offset(
+              localOffset.dx.clamp(8.0, maxX),
+              localOffset.dy.clamp(8.0, maxY),
+            );
           });
         },
         child: aiButton(),

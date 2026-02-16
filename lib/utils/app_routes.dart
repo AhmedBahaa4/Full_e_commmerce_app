@@ -1,6 +1,7 @@
 class AppRoutes {
   static const String homeroute = '/home';
   static const String productDetailsRoute = '/product-details';
+  static const String categoryProductsRoute = '/category-products';
   static const String checkoutRoute = '/checkout';
   static const String addNewCardRoute = '/add-new-card';
   static const String chooseLocation = '/choose-location';

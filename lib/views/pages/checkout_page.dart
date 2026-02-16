@@ -71,35 +71,46 @@ class CheckoutPage extends StatelessWidget {
     BuildContext context,
   ) {
     if (chosenAdress != null) {
+      final imageWidth = (MediaQuery.sizeOf(context).width * 0.28).clamp(
+        100.0,
+        160.0,
+      );
       return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(16.0),
             child: CachedNetworkImage(
               imageUrl: chosenAdress.imgurl,
-              width: 140,
-              height: 100,
+              width: imageWidth.toDouble(),
+              height: imageWidth.toDouble() * 0.72,
               fit: BoxFit.cover,
             ),
           ),
           const SizedBox(width: 15),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                chosenAdress.city,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge!.copyWith(color: AppColors.black),
-              ),
-              const SizedBox(width: 24),
-              Text(
-                '${chosenAdress.city}-${chosenAdress.country}',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge!.copyWith(color: AppColors.grey),
-              ),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  chosenAdress.city,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge!.copyWith(color: AppColors.black),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '${chosenAdress.city}-${chosenAdress.country}',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge!.copyWith(color: AppColors.grey),
+                ),
+              ],
+            ),
           ),
         ],
       );
@@ -195,6 +206,10 @@ class CheckoutPage extends StatelessWidget {
                       separatorBuilder: (_, __) => const Divider(height: 1),
                       itemBuilder: (context, index) {
                         final item = cartItems[index];
+                        final itemImageSize =
+                            MediaQuery.sizeOf(context).width < 390
+                            ? 78.0
+                            : 92.0;
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 10.0),
                           child: Row(
@@ -210,20 +225,20 @@ class CheckoutPage extends StatelessWidget {
                                   ),
                                   child: CachedNetworkImage(
                                     imageUrl: item.product.imgUrl,
-                                    width: 92,
-                                    height: 92,
+                                    width: itemImageSize,
+                                    height: itemImageSize,
                                     fit: BoxFit.cover,
                                     placeholder: (c, u) => Container(
-                                      width: 92,
-                                      height: 92,
+                                      width: itemImageSize,
+                                      height: itemImageSize,
                                       alignment: Alignment.center,
                                       child: const CircularProgressIndicator(
                                         strokeWidth: 2,
                                       ),
                                     ),
                                     errorWidget: (c, u, e) => Container(
-                                      width: 92,
-                                      height: 92,
+                                      width: itemImageSize,
+                                      height: itemImageSize,
                                       alignment: Alignment.center,
                                       color: AppColors.greyshade,
                                       child: const Icon(

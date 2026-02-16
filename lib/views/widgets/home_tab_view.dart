@@ -1,8 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:e_commerc_app/utils/app_color.dart';
 import 'package:e_commerc_app/utils/app_routes.dart';
+import 'package:e_commerc_app/utils/responsive_helper.dart';
 import 'package:e_commerc_app/views/widgets/ai_floating_button.dart';
-
 import 'package:e_commerc_app/views/widgets/product_item.dart';
 import 'package:e_commerc_app/views_models/cubit/home_cubit/home_cubit.dart';
 import 'package:flutter/material.dart';
@@ -22,120 +22,162 @@ class HomeTabView extends StatelessWidget {
           current is HomeError,
       builder: (context, state) {
         if (state is HomeLoading) {
-          return const Center(child: CircularProgressIndicator.adaptive());
+          return Center(
+            child: Text(
+              'Loading products...',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(color: AppColors.grey),
+            ),
+          );
         } else if (state is HomeLoaded) {
-          return Stack(
-            children: [
-              SingleChildScrollView(
-                child: Column(
-                  children: [
-                    FlutterCarousel.builder(
-                      itemCount: state.carouselItems.length,
-                      itemBuilder:
-                          (BuildContext context, int index, int realIndex) {
-                            return Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 5),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(13),
-                                child: CachedNetworkImage(
-                                  imageUrl: state.carouselItems[index].imgUrl,
-                                  fit: BoxFit.cover,
-                                  placeholder: (context, url) => const Center(
-                                    child: CircularProgressIndicator(),
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final maxContentWidth = ResponsiveHelper.maxContentWidth(context);
+              final isLandscape = ResponsiveHelper.isLandscape(context);
+              final horizontalPadding = ResponsiveHelper.horizontalPadding(
+                context,
+              );
+              final availableWidth = constraints.maxWidth > maxContentWidth
+                  ? maxContentWidth
+                  : constraints.maxWidth;
+              final gridCount = ResponsiveHelper.productGridCount(
+                availableWidth,
+              );
+              final carouselHeight =
+                  (isLandscape ? availableWidth * 0.30 : availableWidth * 0.46)
+                      .clamp(150.0, 250.0);
+              final childAspectRatio = isLandscape ? 0.98 : 0.72;
+
+              return Stack(
+                children: [
+                  Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: maxContentWidth),
+                      child: SingleChildScrollView(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: horizontalPadding,
+                        ),
+                        child: Column(
+                          children: [
+                            FlutterCarousel.builder(
+                              itemCount: state.carouselItems.length,
+                              itemBuilder:
+                                  (
+                                    BuildContext context,
+                                    int index,
+                                    int realIndex,
+                                  ) {
+                                    return Container(
+                                      margin: const EdgeInsets.symmetric(
+                                        horizontal: 5,
+                                      ),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(13),
+                                        child: CachedNetworkImage(
+                                          imageUrl:
+                                              state.carouselItems[index].imgUrl,
+                                          fit: BoxFit.cover,
+                                          placeholder: (context, url) =>
+                                              const Center(
+                                                child:
+                                                    CircularProgressIndicator(),
+                                              ),
+                                          errorWidget: (context, url, error) =>
+                                              const Icon(
+                                                Icons.error,
+                                                color: AppColors.red,
+                                                size: 30,
+                                              ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                              options: FlutterCarouselOptions(
+                                height: carouselHeight,
+                                autoPlay: true,
+                                enlargeCenterPage: true,
+                                viewportFraction: isLandscape ? 0.6 : 0.9,
+                                aspectRatio: 16 / 9,
+                                initialPage: 0,
+                                enableInfiniteScroll: true,
+                                reverse: false,
+                                showIndicator: true,
+                                autoPlayCurve: Curves.fastOutSlowIn,
+                                autoPlayInterval: const Duration(seconds: 3),
+                                autoPlayAnimationDuration: const Duration(
+                                  milliseconds: 800,
+                                ),
+                                slideIndicator: CircularWaveSlideIndicator(),
+                                pauseAutoPlayOnTouch: true,
+                              ),
+                            ),
+                            const SizedBox(height: 14),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    'New Arrivals',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          color: AppColors.black,
+                                          fontSize: isLandscape ? 20 : 22,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                   ),
-                                  errorWidget: (context, url, error) =>
-                                      const Icon(
-                                        Icons.error,
-                                        color: AppColors.red,
-                                        size: 30,
+                                ),
+                                Text(
+                                  'See All',
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(
+                                        color: AppColors.strongblue,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                 ),
-                              ),
-                            );
-                          },
-
-                      options: FlutterCarouselOptions(
-                        height: 180,
-
-                        autoPlay: true,
-                        enlargeCenterPage: true,
-                        viewportFraction: 0.9,
-                        aspectRatio: 16 / 9,
-                        initialPage: 0,
-                        enableInfiniteScroll: true,
-                        reverse: false,
-                        showIndicator: true,
-                        autoPlayCurve: Curves.fastOutSlowIn,
-                        autoPlayInterval: const Duration(seconds: 3),
-                        autoPlayAnimationDuration: const Duration(
-                          milliseconds: 800,
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            GridView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: gridCount,
+                                    mainAxisSpacing: 10,
+                                    crossAxisSpacing: 12,
+                                    childAspectRatio: childAspectRatio,
+                                  ),
+                              itemCount: state.products.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return InkWell(
+                                  onTap: () =>
+                                      Navigator.of(
+                                        context,
+                                        rootNavigator: true,
+                                      ).pushNamed(
+                                        AppRoutes.productDetailsRoute,
+                                        arguments: state.products[index].id,
+                                      ),
+                                  child: ProductItem(
+                                    productItem: state.products[index],
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
                         ),
-                        slideIndicator: CircularWaveSlideIndicator(),
-                        pauseAutoPlayOnTouch: true,
                       ),
                     ),
-
-                    const SizedBox(height: 14),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                          child: Text(
-                            'New Arrivals 🔥',
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(
-                                  color: AppColors.black,
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                          ),
-                        ),
-                        Text(
-                          'See All',
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(
-                                color: AppColors.strongblue,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                              ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 2,
-                            crossAxisSpacing: 16,
-                          ),
-                      itemCount: state.products.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return InkWell(
-                          onTap: () =>
-                              Navigator.of(
-                                context,
-                                rootNavigator: true,
-                              ).pushNamed(
-                                AppRoutes.productDetailsRoute,
-                                arguments: state.products[index].id,
-                              ),
-
-                          child: ProductItem(
-                            productItem: state.products[index],
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              const AiFloatingButton(),
-            ],
+                  ),
+                  const AiFloatingButton(),
+                ],
+              );
+            },
           );
         } else if (state is HomeError) {
           return Center(

@@ -11,6 +11,8 @@ class ProductDeailsCubit extends Cubit<ProductDeailsState> {
 
   ProductSize? selectedSize;
   int quantity = 1;
+  ProductItemModel? _loadedProduct;
+  ProductItemModel? get loadedProduct => _loadedProduct;
   final productDetailsServices = ProductDetailsServicesImpl();
   final authServices = AuthServicesImpl();
 
@@ -21,6 +23,9 @@ class ProductDeailsCubit extends Cubit<ProductDeailsState> {
       final selectedProduct = await productDetailsServices.fetchProductDetails(
         id,
       );
+      _loadedProduct = selectedProduct;
+      selectedSize = null;
+      quantity = 1;
 
       emit(ProductDetailsLoaded(product: selectedProduct));
     } catch (e) {
@@ -36,26 +41,42 @@ class ProductDeailsCubit extends Cubit<ProductDeailsState> {
 
   /// إضافة للسلة
   Future<void> addToCart(String productId) async {
+    final size = selectedSize;
+    if (size == null) {
+      emit(ProductAddedToCartError(message: 'Please select a size first.'));
+      return;
+    }
+
+    final currentUser = authServices.currentUser();
+    if (currentUser == null) {
+      emit(ProductAddedToCartError(message: 'Please login first.'));
+      return;
+    }
+
     emit(ProductAddingToCart());
     try {
-      final selectedProduct = await productDetailsServices.fetchProductDetails(
-        productId,
-      );
-
-      final currentUser = authServices.currentUser();
+      final selectedProduct = _loadedProduct?.id == productId
+          ? _loadedProduct!
+          : await productDetailsServices.fetchProductDetails(productId);
 
       final cartItem = AddToCartModel(
-        id: DateTime.now().toIso8601String(),
+        id: '${productId}_${size.name}_${DateTime.now().microsecondsSinceEpoch}',
         product: selectedProduct,
-        size: selectedSize!,
+        size: size,
         quantity: quantity,
       );
 
-      await productDetailsServices.addTocart(cartItem, currentUser!.uid);
+      await productDetailsServices.addTocart(cartItem, currentUser.uid);
 
+      quantity = 1;
       emit(ProductAddedToCart(productId: productId));
+      emit(ProductDetailsLoaded(product: selectedProduct));
     } catch (e) {
       emit(ProductAddedToCartError(message: e.toString()));
+      final selectedProduct = _loadedProduct;
+      if (selectedProduct != null) {
+        emit(ProductDetailsLoaded(product: selectedProduct));
+      }
     }
   }
 

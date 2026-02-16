@@ -14,15 +14,22 @@ class HomeCubit extends Cubit<HomeState> {
   final homeServices = HomeServicesImpl();
   final favoriteServices = FavoriteServicesImpl();
   Future<void> getHomeData() async {
-    emit(HomeLoading());
+    final shouldShowLoading = state is! HomeLoaded;
+    if (shouldShowLoading) {
+      emit(HomeLoading());
+    }
 
     try {
       final currentUser = authServices.currentUser();
-      final products = await homeServices.fetchProducts();
-      final homeCarouselItems = await homeServices.fetchHomeCarouselItems();
-      final favoritesProducts = currentUser == null
-          ? <ProductItemModel>[]
-          : await favoriteServices.getFavorites(currentUser.uid);
+      final productsFuture = homeServices.fetchProducts();
+      final homeCarouselFuture = homeServices.fetchHomeCarouselItems();
+      final favoritesFuture = currentUser == null
+          ? Future.value(<ProductItemModel>[])
+          : favoriteServices.getFavorites(currentUser.uid);
+
+      final products = await productsFuture;
+      final homeCarouselItems = await homeCarouselFuture;
+      final favoritesProducts = await favoritesFuture;
 
       final List<ProductItemModel> finalProducts = products.map((product) {
         final isFavorite = favoritesProducts.any(

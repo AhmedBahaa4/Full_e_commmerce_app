@@ -201,6 +201,9 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
           setState(() {
             currentIndex = index;
           });
+          if (index == 1) {
+            context.read<CartCubit>().getCartItems(showLoading: false);
+          }
         },
         navBarBuilder: (NavBarConfig p1) {
           return CustomNavBarWidget(p1, _controller);

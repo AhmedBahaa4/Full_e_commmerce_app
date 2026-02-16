@@ -1,5 +1,7 @@
 import 'package:e_commerc_app/utils/app_routes.dart';
+import 'package:e_commerc_app/models/category_model.dart';
 import 'package:e_commerc_app/views/pages/add_new_card_page.dart';
+import 'package:e_commerc_app/views/pages/category_products_page.dart';
 import 'package:e_commerc_app/views/pages/change_password_page.dart';
 import 'package:e_commerc_app/views/pages/checkout_page.dart';
 import 'package:e_commerc_app/views/pages/choose_location_page.dart';
@@ -146,6 +148,21 @@ class AppRouter {
             child: ProductDetailsPage(productId: safeProductId),
           ),
 
+          settings: settings,
+        );
+
+      case AppRoutes.categoryProductsRoute:
+        final args = settings.arguments;
+        if (args is! CategoryModel) {
+          return MaterialPageRoute(
+            builder: (_) => const Scaffold(
+              body: Center(child: Text('Invalid category argument')),
+            ),
+            settings: settings,
+          );
+        }
+        return MaterialPageRoute(
+          builder: (_) => CategoryProductsPage(category: args),
           settings: settings,
         );
 

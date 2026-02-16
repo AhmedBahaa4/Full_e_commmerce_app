@@ -12,127 +12,116 @@ class CartItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cubit = BlocProvider.of<CartCubit>(context);
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
+    final cubit = context.read<CartCubit>();
+    final totalPrice = cartItem.totalPrice.toStringAsFixed(2);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.grey5),
+        boxShadow: const [
+          BoxShadow(
+            blurRadius: 12,
+            offset: Offset(0, 4),
+            color: Color(0x14000000),
+          ),
+        ],
+      ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // صورة المنتج
-          DecoratedBox(
+          Container(
             decoration: BoxDecoration(
-              color: AppColors.greyshade,
-              borderRadius: BorderRadius.circular(16),
-              shape: BoxShape.rectangle,
+              color: AppColors.grey2,
+              borderRadius: BorderRadius.circular(14),
             ),
-            child: CachedNetworkImage(
-              imageUrl: cartItem.product.imgUrl,
-              height: 100,
-              width: 100,
-              fit: BoxFit.cover,
-              placeholder: (context, url) =>
-                  const Center(child: CircularProgressIndicator()),
-              errorWidget: (context, url, error) =>
-                  const Icon(Icons.error, color: Colors.red, size: 40),
+            padding: const EdgeInsets.all(6),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: CachedNetworkImage(
+                imageUrl: cartItem.product.imgUrl,
+                height: 88,
+                width: 88,
+                fit: BoxFit.cover,
+                placeholder: (context, url) =>
+                    const Center(child: CircularProgressIndicator.adaptive()),
+                errorWidget: (context, url, error) =>
+                    const Icon(Icons.image_not_supported_outlined, size: 30),
+              ),
             ),
           ),
-
-          const SizedBox(width: 10),
-
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  width: 200,
-                  height: 25,
+                Text(
+                  cartItem.product.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: AppColors.black,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.grey2,
+                    borderRadius: BorderRadius.circular(40),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
                   child: Text(
-                    cartItem.product.name,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: AppColors.black,
-                      fontSize: 20,
+                    'Size ${cartItem.size.name.toUpperCase()}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.black2,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
-                const SizedBox(height: 5),
-
-                Text.rich(
-                  TextSpan(
-                    text: 'Size: ',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: AppColors.black2,
-                      fontSize: 16,
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    CartCounterWidget(
+                      cartItem: cartItem,
+                      value: cartItem.quantity,
+                      cubit: cubit,
                     ),
-                    children: [
-                      TextSpan(
-                        text:
-                            ' ${cartItem.size.toString().split('.').last.toUpperCase()}',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: AppColors.black,
-                          fontSize: 18,
+                    const Spacer(),
+                    Text(
+                      '\$$totalPrice',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: AppColors.black,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () => cubit.removeCartItem(cartItem.id),
+                        child: const Padding(
+                          padding: EdgeInsets.all(6),
+                          child: Icon(
+                            Icons.delete_outline_rounded,
+                            color: AppColors.red,
+                            size: 22,
+                          ),
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 5),
-                BlocBuilder<CartCubit, CartState>(
-                  bloc: cubit,
-                  buildWhen: (previous, current) =>
-                      current is QuantityCounterLoaded &&
-                      current.productId == cartItem.product.id,
-
-                  builder: (context, state) {
-                    if (state is QuantityCounterLoaded) {
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          CartCounterWidget(
-                            cartItem: cartItem,
-                            value: state.value,
-                            cubit: cubit,
-                          ),
-
-                          Text(
-                            '\$ ${(state.value * cartItem.product.price).toStringAsFixed(1)}',
-
-                            style: Theme.of(context).textTheme.titleLarge
-                                ?.copyWith(
-                                  color: AppColors.black,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                        ],
-                      );
-                    }
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        CartCounterWidget(
-                          cartItem: cartItem,
-                          value: cartItem.quantity,
-                          cubit: cubit,
-                        ),
-                        Text(
-                          '\$ ${cartItem.totalPrice.toStringAsFixed(1)}',
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(
-                                color: AppColors.black,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                      ],
-                    );
-                  },
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-
-          // السعر
         ],
       ),
     );

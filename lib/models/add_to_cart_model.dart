@@ -40,12 +40,15 @@ class AddToCartModel {
     };
   }
 
-  factory AddToCartModel.fromMap(Map<String, dynamic> map) {
+  factory AddToCartModel.fromMap(
+    Map<String, dynamic> map, {
+    String? documentId,
+  }) {
     return AddToCartModel(
-      id: map['id'] as String,
+      id: (map['id'] as String?) ?? documentId ?? '',
       product: ProductItemModel.fromMap(map['product']),
-      size: ProductSize.fromString(map['size']),
-      quantity: map['quantity'] as int,
+      size: ProductSize.fromString((map['size'] as String?) ?? 'M'),
+      quantity: (map['quantity'] as num?)?.toInt() ?? 1,
     );
   }
 }

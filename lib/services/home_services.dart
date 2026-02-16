@@ -14,37 +14,25 @@ class HomeServicesImpl implements HomeServices {
   final firestoreServices = FirestoreServices.instance;
   @override
   Future<List<ProductItemModel>> fetchProducts() async {
-    final result = await firestoreServices.getCollection<ProductItemModel>(
+    return await firestoreServices.getCollection<ProductItemModel>(
       path: ApiPaths.products(),
       builder: (data, documentId) => ProductItemModel.fromMap(data),
     );
-
-    await Future.delayed(const Duration(seconds: 2));
-
-    return result;
   }
 
   @override
   Future<List<CategoryModel>> fetchCategories() async {
-    final result = await firestoreServices.getCollection<CategoryModel>(
+    return await firestoreServices.getCollection<CategoryModel>(
       path: ApiPaths.categories(),
       builder: (data, documentId) => CategoryModel.fromMap(data),
     );
-
-    await Future.delayed(const Duration(seconds: 1));
-
-    return result;
   }
 
   @override
   Future<List<HomeCarouselItemModel>> fetchHomeCarouselItems() async {
-    final result = await firestoreServices.getCollection<HomeCarouselItemModel>(
+    return await firestoreServices.getCollection<HomeCarouselItemModel>(
       path: ApiPaths.announcment(),
       builder: (data, documentId) => HomeCarouselItemModel.fromMap(data),
     );
-
-    await Future.delayed(const Duration(seconds: 1));
-
-    return result;
   }
 }
